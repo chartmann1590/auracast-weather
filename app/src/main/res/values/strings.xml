@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">AuraCast Weather</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_radar">Radar</string>
+    <string name="nav_report">Report</string>
+    <string name="nav_settings">Settings</string>
+    <string name="permission_rationale">AuraCast uses your location to show local weather and radar. You can also search for a city manually.</string>
+    <string name="search_hint">Search city or zip…</string>
+    <string name="offline_cached_banner">Showing cached data from %1$s ago</string>
+    <string name="tts_install_nudge_title">Offline voice not installed</string>
+    <string name="tts_install_nudge_body">For fully offline AI weather podcasts, install an offline voice: Settings → Accessibility → Text-to-speech → Download voice data.</string>
+</resources>

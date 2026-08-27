@@ -1,0 +1,177 @@
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("org.jetbrains.kotlin.plugin.parcelize")
+    // Firebase — google-services.json now present (real project: auracast-weather)
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+    id("com.google.firebase.firebase-perf")
+}
+
+android {
+    namespace = "com.auracast.weather"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "com.auracast.weather"
+        minSdk = 26
+        targetSdk = 36
+        versionCode = 1
+        versionName = "0.1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables { useSupportLibrary = true }
+        // AdMob app id placeholder — replace with real before release
+        manifestPlaceholders["adMobAppId"] = "ca-app-pub-3940256099942544~3347511713"
+    }
+
+    buildTypes {
+        getByName("debug") {
+            isDebuggable = true
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
+            buildConfigField("boolean", "USE_TEST_ADS", "true")
+        }
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
+            buildConfigField("boolean", "USE_TEST_ADS", "false")
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    packaging {
+        resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+dependencies {
+    val composeBom = platform("androidx.compose:compose-bom:2026.06.01")
+    implementation(composeBom)
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.activity:activity-compose:1.9.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.58")
+    ksp("com.google.dagger:hilt-compiler:2.58")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
+
+    // Networking
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.11.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    // Bumped from 1.8.1 — that pin caused a real crash: litertlm-android's Conversation
+    // class calls a SendChannel.close$default overload that only exists in newer
+    // kotlinx-coroutines (java.lang.NoSuchMethodError at runtime during report generation).
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
+
+    // Room + DataStore
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
+    ksp("androidx.room:room-compiler:2.8.4")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+
+    // Firebase — real project (auracast-weather), google-services.json in place
+    implementation(platform("com.google.firebase:firebase-bom:34.18.0"))
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-perf")
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Ads & Billing (Phase 10) — gated behind isAdFree/BillingManager flag
+    implementation("com.google.android.gms:play-services-ads:23.6.0")
+    implementation("com.android.billingclient:billing-ktx:9.1.0")
+
+    // ML Kit Translation (Phase 7) — on-device, downloadable language packs
+    implementation("com.google.mlkit:translate:17.0.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.11.0") // Task<T>.await() bridge, used by ML Kit calls
+
+    // Glance Widget (Phase 11)
+    implementation("androidx.glance:glance-appwidget:1.1.1")
+
+    // Lottie (Phase 11/16 — Meteocons animated icons)
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
+
+    // LiteRT-LM Android (Phase 5) — on-device Gemma 4 inference.
+    // Source: https://developers.google.com/edge/litert-lm/android
+    // Version pinned to the real latest release found on dl.google.com's maven-metadata.xml.
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.16.1")
+
+    // Google Fonts downloadable-fonts API (Phase 16) — Lexend/Manrope/Inter fetched at runtime,
+    // cached by the OS font provider; no font files bundled in the APK.
+    implementation("androidx.compose.ui:ui-text-google-fonts")
+
+    // Coil3 + SVG decoder (Phase 16) — renders the real Meteocons SVGs bundled in
+    // app/src/main/assets/meteocons/ (MIT license, see LICENSE.txt alongside them).
+    implementation("io.coil-kt.coil3:coil-compose:3.4.0")
+    implementation("io.coil-kt.coil3:coil-svg:3.4.0")
+    // Network fetcher (Phase 4 radar tiles) — the app's ImageLoader only ever needed local
+    // asset SVGs before this, so it had zero network-capable fetcher registered. Without this,
+    // Coil throws "Unable to create a fetcher that supports: https://..." for any http(s) URL —
+    // confirmed via on-device logging, this was the actual root cause of radar tiles never
+    // loading, not an osmdroid bug.
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.4.0")
+
+    // osmdroid (Phase 4) — free OSM base map, no API key/billing (unlike Google Maps SDK).
+    // Radar tiles (RainViewer/NWS) are layered on top via a custom TilesOverlay.
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2026.06.01"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+}

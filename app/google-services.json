@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "714933245747",
+    "project_id": "auracast-weather",
+    "storage_bucket": "auracast-weather.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714933245747:android:306421ba6e9bc8d9d69046",
+        "android_client_info": {
+          "package_name": "com.auracast.weather"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7jLlpxw6gt5XLnXPTLhsgL6wG4mRf8Qw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
