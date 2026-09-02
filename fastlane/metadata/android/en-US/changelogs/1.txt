@@ -1,0 +1,1 @@
+﻿Initial release: on-device AI weather podcast (Gemma 4 + neural TTS), animated radar (RainViewer + NWS), 48h/5-day forecast, 58-language offline translation, light/dark themes and widgets.

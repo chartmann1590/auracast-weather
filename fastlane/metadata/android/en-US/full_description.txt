@@ -1,0 +1,19 @@
+Your weather, narrated — fully on-device.
+
+AuraCast Weather turns your daily forecast into a natural spoken briefing, generated right on your phone with Gemma 4 and a real neural voice. No account, no cloud AI calls for the report itself.
+
+• Current, 48-hour hourly and 5-day forecast (Open-Meteo + NWS) with beautiful Meteocons animated icons
+• AI weather podcast — Gemma 4 runs on-device via LiteRT-LM, read aloud with neural TTS; pick and preview your favorite voice in Settings
+• Animated precipitation radar — RainViewer + NWS tiles on a free OSM base map (osmdroid) with Coil-backed overlay and play/pause + scrub (40-min loop)
+• On-device translation into 58 languages via ML Kit — models download once, then work offline with no server round-trip
+• Severe-weather alerts & daily briefing notifications (WorkManager + FCM)
+• Light/dark Material 3 themes, widgets, no account required
+
+Privacy first
+Your AI report never leaves your device — forecast numbers are fed to a local model on your phone. The only network calls are for fetching the forecast and radar imagery. Crash diagnostics (Firebase Crashlytics/Performance) use an anonymous install ID, and ads (AdMob) follow Google’s Advertising ID policies with UMP consent where required. See the full Privacy Policy: https://auracast-weather.web.app/privacy.html
+
+Built native in Kotlin + Jetpack Compose with dynamic color, adaptive icon, and support for phones and tablets (screenshots included for phone, 7-inch and 10-inch tablets).
+
+Whether you want a quick glance or a hands-free briefing while you get ready — AuraCast makes weather feel personal, private, and beautifully clear.
+
+Support: support@auracast.app • Website: https://auracast-weather.web.app
