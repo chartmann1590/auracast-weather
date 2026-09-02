@@ -8,6 +8,8 @@ AuraCast Weather is a native Android weather app that generates a spoken weather
 🔒 **Privacy Policy:** https://auracast-weather.web.app/privacy.html
 📱 **Google Play:** coming soon
 
+![Feature graphic](website/public/assets/feature-graphic.png)
+
 ## Features
 
 - **Current, 48-hour hourly, and 5-day forecast** (Open-Meteo + NWS)
@@ -16,6 +18,20 @@ AuraCast Weather is a native Android weather app that generates a spoken weather
 - **On-device translation** into 58 languages via ML Kit — no server round-trip
 - **Severe weather alerts & daily briefing** notifications
 - **Light/dark themes**, no account required
+
+## Preview
+
+Screenshots for **phone (1080×1920)**, **7″ tablet (1200×1920)** and **10″ tablet (1600×2560)** plus the **1024×500 feature graphic** and **promo video** are all live on the website and committed under `fastlane/metadata/android/en-US/images/` for Play Console.
+
+🌐 **Live preview:** https://auracast-weather.web.app — see Screenshots & Promo sections for every form factor, or browse `website/public/screenshots/`.
+
+| Phone | 7″ tablet | 10″ tablet |
+|---|---|---|
+| ![Phone 1](website/public/screenshots/phone/phone-1.png) | ![7in 1](website/public/screenshots/7inch/7inch-1.png) | ![10in 1](website/public/screenshots/10inch/10inch-1.png) |
+
+▶ Promo: `website/public/assets/promo.mp4` (poster `promo-poster.png`) — also at `fastlane/metadata/android/en-US/images/promo.mp4` and embedded on the site.
+
+Adaptive icon is in place (`mipmap-anydpi-v26/ic_launcher.xml` + PNGs for mdpi → xxxhdpi) and the launcher label is **“AuraCast Weather”** (`@string/app_name`).
 
 ## Privacy first
 
