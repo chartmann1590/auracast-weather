@@ -44,11 +44,24 @@ Native Android, Kotlin + Jetpack Compose, Hilt DI, Room, Coroutines/Flow. On-dev
 ## Building from source
 
 ```bash
-./gradlew assembleDebug
-./gradlew installDebug   # with a device/emulator connected
+./gradlew assembleDebug          # TEST ads (always, safe for any contributor)
+./gradlew assembleRelease        # REAL ads when secrets are present, else test fallback
+./gradlew installDebug           # with a device/emulator connected
 ```
 
-Firebase (`google-services.json`) is included for Crashlytics/Performance/Messaging. AdMob and Play Billing use test IDs in debug builds.
+Firebase (`google-services.json`) is included for Crashlytics/Performance/Messaging.
+
+**AdMob — secure, never hardcoded:** production IDs are *never* committed. They live only in:
+- `local.properties` (gitignored) for local release builds:
+  ```properties
+  admob.appId=ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX
+  admob.bannerId=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+  admob.interstitialId=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+  ```
+  A gitignored `local.properties` with the real IDs is already configured on the maintainer machine; contributors without it automatically fall back to Google's public test IDs and the app still builds.
+- **GitHub Secrets** for CI (`ADMOB_APP_ID`, `ADMOB_BANNER_ID`, `ADMOB_INTERSTITIAL_ID`) — injected as env vars in `.github/workflows/build.yml`. Debug builds *always* use Google test IDs (`ca-app-pub-3940256099942544/...`) to avoid invalid-traffic strikes; release builds use the real IDs when secrets are present, otherwise test fallback so forks/PRs stay green. The workflow verifies no `ca-app-pub-` other than the test allow-list is tracked.
+
+Play Billing uses test purchases in debug; use Play Console's licensed testers for release verification.
 
 ### Project structure
 

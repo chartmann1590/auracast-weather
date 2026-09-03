@@ -1,19 +1,124 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Privacy Policy — AuraCast Weather</title>
-<style>body{font-family:Inter,system-ui,sans-serif;max-width:780px;margin:0 auto;padding:32px;line-height:1.6}</style></head>
+<meta name="description" content="Privacy Policy for AuraCast Weather — how we handle location, ads, analytics, on-device AI, and purchases."/>
+<style>
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:780px;margin:0 auto;padding:32px;line-height:1.7;color:#0B1E3D;background:#fff}
+  h1{font-family:Lexend,Manrope,Inter,sans-serif;letter-spacing:-0.03em;margin:0 0 6px;font-size:32px}
+  h2{font-family:Lexend,Manrope,Inter,sans-serif;margin:28px 0 8px;font-size:20px;letter-spacing:-0.02em}
+  h3{margin:18px 0 6px;font-size:16px}
+  p,li{color:#2a3a56}
+  a{color:#2979FF}
+  code{background:#eef3ff;padding:2px 6px;border-radius:6px;font-size:13px}
+  .lede{font-size:15px;background:#f6f8fc;border:1px solid #e6ebf2;border-radius:12px;padding:14px 16px}
+  .badge{display:inline-block;background:#0B1E3D;color:#fff;font-size:12px;font-weight:700;letter-spacing:.06em;padding:4px 8px;border-radius:999px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+  th,td{border:1px solid #e6ebf2;padding:8px 10px;text-align:left}
+  th{background:#f6f8fc}
+  .muted{color:#5b6b82;font-size:13px}
+  footer{margin-top:28px;padding-top:16px;border-top:1px solid #e6ebf2}
+</style></head>
 <body>
 <h1>Privacy Policy — AuraCast Weather</h1>
-<p><em>Last updated: August 27, 2026</em></p>
-<p>AuraCast Weather does not require an account and does not collect your name, email, or other directly identifying information.</p>
-<h2>Location</h2>
-<p>Coarse location (Phase 2, FusedLocationProviderClient) is used only to fetch weather and radar for your area. It is not sold and not used for ad targeting beyond standard AdMob SDK behavior (see Advertising below). You may also use manual city search instead of GPS.</p>
-<h2>Crash &amp; Performance</h2>
-<p>Firebase Crashlytics and Performance Monitoring (Phase 9) collect device model, OS version, stack traces, and an anonymous install ID for diagnostics. No real identity is tied to this data. Custom keys: ai_engine_used, location_source, tts_offline, active_locale.</p>
-<h2>On-Device AI &amp; Translation</h2>
-<p>Weather-report generation (Gemma 4 via LiteRT-LM / AICore, Phase 5) and translation (ML Kit, Phase 7) run on-device. Forecast numbers are fed into the local model; they are not sent to a cloud AI service. Translation models download once then work offline.</p>
-<h2>Advertising &amp; Purchases</h2>
-<p>AdMob (Phase 10) may collect the Advertising ID per Google's policies. Consent is collected via the User Messaging Platform (UMP) SDK where required (GDPR/CCPA). Purchases (AuraCast Plus ad-free subscription) are handled by Google Play Billing Library 9.1; transaction data is handled by Google Play, not stored by the app beyond entitlement state.</p>
-<h2>Data Safety (Play Console)</h2>
-<p>This policy mirrors the Data Safety form declared in Play Console (Phase 12). Contact support@auracast.app with questions.</p>
-<p><a href="/">← Back to home</a></p>
+<p class="muted"><span class="badge">UPDATED</span> &nbsp; Last updated: <strong>September 03, 2026</strong> &nbsp;·&nbsp; Effective: September 03, 2026 &nbsp;·&nbsp; App: <code>com.auracast.weather</code></p>
+
+<div class="lede">
+  <strong>Summary:</strong> AuraCast Weather requires <strong>no account</strong> and does not collect your name, email, phone number, or other directly identifying information. The app fetches weather and radar for your location, narrates it on-device with Gemma&nbsp;4, and shows ads only to free-tier users. Paid <em>AuraCast Plus</em> subscribers see no ads and make no ad requests at all. This policy explains every data flow the app actually uses — see <a href="#data-safety">Data Safety mapping</a> at the bottom for the Play Console summary.
+</div>
+
+<p>Contact: <a href="mailto:support@auracast.app">support@auracast.app</a> &nbsp;·&nbsp; Website: <a href="/">auracast-weather.web.app</a> &nbsp;·&nbsp; Full description: <a href="/#features">Features</a></p>
+
+<h2>1. Information We Do Not Collect</h2>
+<ul>
+  <li>No sign-up or login — we do not collect your name, email, address, or phone number.</li>
+  <li>No contacts, calendar, photos, or files.</li>
+  <li>No precise background location tracking — only coarse foreground location when you grant permission, and you can use manual city search instead.</li>
+</ul>
+
+<h2>2. Location</h2>
+<p>When you grant location permission, the app uses Google Play Services <code>FusedLocationProviderClient</code> (coarse accuracy) <strong>only</strong> to fetch weather forecasts (Open-Meteo + NWS) and radar tiles (RainViewer + NWS / OSM via osmdroid) for your area. The coordinates are sent to those weather-data providers to return your forecast — they are <strong>not sold</strong> and not used by us for profiling. You may deny permission at any time and use manual city search; the app remains fully functional.</p>
+<p class="muted">Android permissions used: <code>ACCESS_COARSE_LOCATION</code>, <code>ACCESS_FINE_LOCATION</code> (requested but coarse is sufficient; both are declared for compatibility), <code>INTERNET</code>, <code>ACCESS_NETWORK_STATE</code>, <code>POST_NOTIFICATIONS</code>, <code>RECEIVE_BOOT_COMPLETED</code>.</p>
+
+<h2>3. Advertising (Google AdMob) — free tier only</h2>
+<p>AuraCast Weather monetizes the free tier with <strong>Google Mobile Ads SDK (AdMob) 23.6.0</strong>:</p>
+<ul>
+  <li><strong>Formats:</strong> one adaptive anchored banner (bottom of Home) and one interstitial (shown only at natural transition points, e.g. after generating an AI report, capped to <strong>max once per session with a 3-minute minimum gap</strong> to protect retention). Paying subscribers (<em>AuraCast Plus</em>) never load or display ads — the ad composable is not rendered and no ad network call is made.</li>
+  <li><strong>What AdMob may collect:</strong> per Google's own SDK, AdMob may collect the <strong>Google Advertising ID</strong>, IP address, device model/OS version, approximate location (if consented), and ad-interaction data to serve, measure, and (where consented) personalize ads, and to combat fraud. See <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Google's Advertising Privacy</a> and <a href="https://support.google.com/admob/answer/6128543" target="_blank" rel="noopener">AdMob Data Disclosure</a>.</li>
+  <li><strong>App ID &amp; ad units:</strong> the production AdMob App ID and ad unit IDs are injected at build time from secure storage (local <code>local.properties</code> on developer machines — gitignored — and <code>GitHub Secrets</code> in CI). They are <strong>never hardcoded</strong> in source control and never logged. Debug builds always use Google's public <strong>test IDs</strong> (<code>ca-app-pub-3940256099942544/…</code>) to avoid invalid-traffic policy strikes — no real impression is billed in debug.</li>
+  <li><strong>Consent:</strong> where required by law (EEA/UK, California, etc.), consent is collected before any ad request via Google's <strong>User Messaging Platform (UMP) SDK</strong>. If you decline or select non-personalized ads, the SDK signals that choice to AdMob. You can reset your Advertising ID and opt out of personalization at any time: <strong>Android Settings → Privacy → Ads</strong> (or <code>Privacy → Ads → Reset/Delete Advertising ID</code> on Android 13+), and via the in-app consent dialog where shown. <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ads Settings</a> · <a href="https://myadcenter.google.com/" target="_blank" rel="noopener">My Ad Center</a>.</li>
+  <li><strong>Children:</strong> the app is not directed to children under 13; we do not implement child-directed treatment. If you are a parent and believe your child has provided data, contact us to remove it.</li>
+</ul>
+<p class="muted">We do not sell your Advertising ID. AdMob's use of data is governed by <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a> and the <a href="https://developers.google.com/admob/android/privacy" target="_blank" rel="noopener">AdMob Privacy &amp; Messaging guidance</a>.</p>
+
+<h2>4. Crash &amp; Performance (Firebase)</h2>
+<p>To keep the app stable fast, we use <strong>Firebase Crashlytics</strong>, <strong>Performance Monitoring</strong>, <strong>Analytics (anonymous)</strong>, and <strong>Cloud Messaging (FCM)</strong> for severe-weather alerts.</p>
+<ul>
+  <li><strong>What is collected:</strong> device model, OS version, app version, crash stack traces, performance traces, an <strong>anonymous Firebase Installation ID</strong>, and diagnostic custom keys: <code>ai_engine_used</code>, <code>location_source</code>, <code>tts_offline</code>, <code>active_locale</code>. No name or email is tied to this data.</li>
+  <li><strong>Why:</strong> to fix crashes, measure cold-start and network performance, and count anonymous feature usage.</li>
+  <li><strong>Opt-out:</strong> you can disable usage &amp; diagnostics collection via Android Settings → Privacy → Usage &amp; diagnostics; deleting the app removes the Installation ID. No opt-in is required beyond installing the app.</li>
+</ul>
+<p class="muted">See <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy</a> and <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>. Firebase data is retained only as long as needed for diagnostics (Crashlytics 90 days for mappings/breadcrumbs, Performance per Firebase defaults).</p>
+
+<h2>5. On-Device AI &amp; Translation (no cloud AI)</h2>
+<p>Weather-report generation (<strong>Gemma 4 via LiteRT-LM / AICore</strong>, Phase 5) and translation (<strong>ML Kit</strong>, Phase 7) run <strong>entirely on-device</strong>. Forecast numbers are fed into the local model on your phone; they are <strong>not sent to a cloud AI service</strong> for inference. Translation packs download once over the network, then work offline. No report text is uploaded by the app.</p>
+<p class="muted">Note: ML Kit model management and AICore may use standard Google Play Services telemetry (e.g., model-download success) per Google's privacy policy — not your weather content.</p>
+
+<h2>6. Purchases (AuraCast Plus — ad-free subscription)</h2>
+<p>Ad-free access is sold as an auto-renewing subscription via <strong>Google Play Billing Library 9.1</strong>. Transaction processing, receipts, and subscription lifecycle are handled entirely by <strong>Google Play</strong>. The app stores only the resulting <strong>entitlement state</strong> (<code>isAdFree: Boolean</code>) locally via DataStore/Room to gate ad display — no card data is handled or stored by us. Use Play's <strong>Restore Purchases</strong> to sync entitlement after reinstalls or device changes. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Play Privacy</a>.</p>
+
+<h2>7. Third-Party Services &amp; Data Processors</h2>
+<table>
+  <tr><th>Service</th><th>Purpose</th><th>Data sent</th></tr>
+  <tr><td>Open-Meteo + NWS (National Weather Service)</td><td>Forecast (current / 48h / 5-day)</td><td>Lat/lon + language preference</td></tr>
+  <tr><td>RainViewer + NWS / OSM (osmdroid)</td><td>Radar tiles</td><td>Tile coordinates + IP</td></tr>
+  <tr><td>Google Play Services / AdMob / UMP</td><td>Ads + consent (free tier)</td><td>Advertising ID, IP, device signals (per Google policy)</td></tr>
+  <tr><td>Firebase (Crashlytics, Perf, Analytics, FCM)</td><td>Diagnostics &amp; alerts</td><td>Anonymous install ID, device signals (see §4)</td></tr>
+  <tr><td>Google Play Billing 9.1</td><td>Subscriptions</td><td>Purchase token (handled by Google)</td></tr>
+  <tr><td>ML Kit / AICore / Play Services</td><td>On-device AI &amp; translation</td><td>Model download telemetry only (content stays on-device)</td></tr>
+</table>
+
+<h2>8. Data Retention &amp; Security</h2>
+<ul>
+  <li><strong>Location:</strong> processed in memory per request; not stored server-side by us (we operate no backend for weather — fetches go directly to Open-Meteo/NWS/RainViewer).</li>
+  <li><strong>Ads:</strong> banner/interstitial impressions are logged by Google per their retention policy; we retain no ad logs locally.</li>
+  <li><strong>Diagnostics:</strong> per Firebase defaults; stack traces are automatically pruned.</li>
+  <li><strong>Security:</strong> all network calls use HTTPS. AdMob app/ad unit IDs are stored only in <code>local.properties</code> (gitignored) and GitHub Secrets for CI — they are never committed to git and never embedded as strings outside the build-time BuildConfig/manifest placeholders. See <a href="https://github.com/chartmann1590/auracast-weather" target="_blank" rel="noopener">repository hygiene</a> (workflow verifies no real IDs are tracked).</li>
+</ul>
+
+<h2>9. Your Rights (GDPR / CCPA / Other)</h2>
+<p>Depending on your region you may have rights to access, delete, or object to processing. Because we operate no account backend, most requests are exercised on-device or via platform controls:</p>
+<ul>
+  <li><strong>Ads:</strong> via UMP consent dialog (re-prompt on app data clear) + <strong>Settings → Privacy → Ads</strong> + <a href="https://adssettings.google.com/" target="_blank" rel="noopener">adssettings.google.com</a>. California users may choose "Do Not Sell/Share" — selecting non-personalized ads signals that choice to Google.</li>
+  <li><strong>Analytics/diagnostics:</strong> uninstall the app or disable usage &amp; diagnostics in Android system settings.</li>
+  <li><strong>Location:</strong> revoke location permission at any time (Android Settings → Apps → AuraCast Weather → Permissions) and use manual city search.</li>
+</ul>
+<p>To exercise any remaining right, email <a href="mailto:support@auracast.app">support@auracast.app</a> with your device model and approximate install date; we will respond within 30 days.</p>
+
+<h2>10. Data Safety (Play Console) — How This Policy Maps to the Form</h2>
+<p id="data-safety">The Play Console Data Safety form (Phase 12) is completed consistently with this policy:</p>
+<table>
+  <tr><th>Data type</th><th>Collected?</th><th>Shared?</th><th>Purpose</th></tr>
+  <tr><td>Approximate location (coarse)</td><td>Yes (optional, user-granted)</td><td>Yes → Open-Meteo/NWS/RainViewer, Google (AdMob, if free tier)</td><td>App functionality; analytics; advertising (AdMob, free tier only, with UMP consent)</td></tr>
+  <tr><td>App activity / Advertising ID</td><td>Yes (AdMob SDK, free tier)</td><td>Yes → Google (AdMob)</td><td>Advertising, fraud prevention</td></tr>
+  <tr><td>Crash logs / Performance / Diagnostics</td><td>Yes (Firebase)</td><td>Yes → Google (Firebase)</td><td>Analytics, app functionality</td></tr>
+  <tr><td>Financial info (purchase history / tokens)</td><td>Yes (via Google Play Billing)</td><td>No — handled by Google Play; app stores only isAdFree flag</td><td>Account management (entitlement)</td></tr>
+  <tr><td>Personal info (name, email, contacts, etc.)</td><td>No</td><td>No</td><td>—</td></tr>
+</table>
+<p class="muted">All sensitive flows are encrypted in transit (HTTPS). Data is not sold. Users can revoke location/consent as described above.</p>
+
+<h2>11. International Transfers</h2>
+<p>Weather-data fetches, Firebase, and AdMob may process data on Google's global infrastructure per their policies. By using the app you understand data may be processed outside your country where privacy laws may differ.</p>
+
+<h2>12. Changes to This Policy</h2>
+<p>We may update this policy to reflect new data flows. The "Last updated" date at the top will change, and the previous version will remain linked from the website history. Material changes will be noted in the app's release notes on Play.</p>
+
+<h2>13. Contact</h2>
+<p>Questions or requests: <a href="mailto:support@auracast.app">support@auracast.app</a>. We aim to reply within 5 business days. This policy is hosted at a stable URL <code>https://auracast-weather.web.app/privacy.html</code> as required for Play Console; the footer of <a href="/">the marketing site</a> links here permanently.</p>
+
+<footer>
+  <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap" class="muted">
+    <div>© 2026 AuraCast Weather · Built with Material 3, Meteocons (MIT), Material Symbols (Apache 2.0) · <a href="/">Home</a> · <a href="/privacy.html">Privacy</a></div>
+    <div>Contact: <a href="mailto:support@auracast.app">support@auracast.app</a> · <a href="https://github.com/chartmann1590/auracast-weather">GitHub</a></div>
+  </div>
+  <div style="margin-top:8px" class="muted">Open-Meteo + NWS · RainViewer · LiteRT-LM Gemma 4 · ML Kit · Firebase · AdMob 23.6.0 · Play Billing 9.1 · <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy</a> · <a href="https://developers.google.com/admob/android/privacy" target="_blank" rel="noopener">AdMob Privacy</a></div>
+</footer>
 </body></html>

@@ -1,6 +1,10 @@
 *.iml
 .gradle/
 local.properties
+# AdMob / secrets — real IDs must NEVER be committed; keep only in local.properties (gitignored) + GitHub Secrets
+admob.properties
+secrets.properties
+admob*.properties
 /.idea/
 .DS_Store
 build/

@@ -1,0 +1,19 @@
+# Copy to local.properties (gitignored) and fill with REAL production IDs only on the maintainer machine.
+# Contributors without real IDs can leave this file absent — the build falls back to Google's public TEST IDs automatically.
+# See README.md and app/build.gradle.kts for the secure resolution order: env var (CI) → local.properties → fallback test ID.
+
+sdk.dir=C:/Users/YourName/AppData/Local/Android/Sdk
+
+# AdMob — REAL IDs only. Debug builds ALWAYS use test IDs; these are used solely for release.
+# Get these from https://apps.admob.com → Apps → App settings / Ad units
+# DO NOT COMMIT this file — it must remain local.properties (gitignored) or GitHub Secrets (ADMOB_APP_ID etc.)
+
+# Example (replace with your real IDs — these below are Google's PUBLIC test IDs, not production):
+# admob.appId=ca-app-pub-3940256099942544~3347511713
+# admob.bannerId=ca-app-pub-3940256099942544/9214589741
+# admob.interstitialId=ca-app-pub-3940256099942544/1033173712
+
+# Production shape (uncomment and fill when you are the release maintainer):
+# admob.appId=ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX
+# admob.bannerId=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+# admob.interstitialId=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX

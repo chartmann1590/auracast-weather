@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -12,6 +14,37 @@ plugins {
     id("com.google.firebase.firebase-perf")
 }
 
+// ── AdMob IDs — SECURE, NEVER hardcoded ─────────────────────────────────────
+// Real production IDs are stored ONLY in:
+//   • local.properties (gitignored, local dev)  → admob.appId / admob.bannerId / admob.interstitialId
+//   • GitHub Actions Secrets (CI)               → ADMOB_APP_ID / ADMOB_BANNER_ID / ADMOB_INTERSTITIAL_ID
+// Resolution order: env var (CI) → local.properties → Gradle property → fallback TEST ID.
+// Debug builds ALWAYS use Google's public TEST IDs to avoid invalid-traffic policy strikes.
+// Release builds use the real IDs when present (local or CI), otherwise fall back to test IDs
+// so forks/PRs and fresh clones still build without secrets.
+val _adMobLocalProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) {
+        f.inputStream().use { ins -> load(ins) }
+    }
+}
+fun _adMobSecret(propKey: String, envKey: String, fallback: String): String {
+    val fromEnv = System.getenv(envKey)?.trim()?.takeIf { it.isNotEmpty() }
+    val fromLocal = _adMobLocalProps.getProperty(propKey)?.trim()?.takeIf { it.isNotEmpty() }
+    val fromProject = (findProperty(propKey) as? String)?.trim()?.takeIf { it.isNotEmpty() }
+    // Explicitly handle nullable chain to satisfy Kotlin compiler
+    if (fromEnv != null) return fromEnv
+    if (fromLocal != null) return fromLocal
+    if (fromProject != null) return fromProject
+    return fallback
+}
+val _adMobTestAppId = "ca-app-pub-3940256099942544~3347511713"
+val _adMobTestBanner = "ca-app-pub-3940256099942544/9214589741"
+val _adMobTestInterstitial = "ca-app-pub-3940256099942544/1033173712"
+val _adMobRealAppId = _adMobSecret("admob.appId", "ADMOB_APP_ID", _adMobTestAppId)
+val _adMobRealBanner = _adMobSecret("admob.bannerId", "ADMOB_BANNER_ID", _adMobTestBanner)
+val _adMobRealInterstitial = _adMobSecret("admob.interstitialId", "ADMOB_INTERSTITIAL_ID", _adMobTestInterstitial)
+
 android {
     namespace = "com.auracast.weather"
     compileSdk = 36
@@ -25,15 +58,17 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
-        // AdMob app id placeholder — replace with real before release
-        manifestPlaceholders["adMobAppId"] = "ca-app-pub-3940256099942544~3347511713"
+        // Safe default for manifest merger; per-buildType overrides below enforce test-vs-real policy.
+        manifestPlaceholders["adMobAppId"] = _adMobTestAppId
     }
 
     buildTypes {
         getByName("debug") {
             isDebuggable = true
-            buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
-            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
+            // Debug ALWAYS uses TEST IDs — never real, even if secrets are present locally.
+            manifestPlaceholders["adMobAppId"] = _adMobTestAppId
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"${_adMobTestBanner}\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${_adMobTestInterstitial}\"")
             buildConfigField("boolean", "USE_TEST_ADS", "true")
         }
         getByName("release") {
@@ -43,8 +78,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
-            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
+            // Release uses REAL IDs when secrets are present (local.properties or CI env), else test fallback so build never breaks.
+            manifestPlaceholders["adMobAppId"] = _adMobRealAppId
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"${_adMobRealBanner}\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${_adMobRealInterstitial}\"")
             buildConfigField("boolean", "USE_TEST_ADS", "false")
         }
     }
