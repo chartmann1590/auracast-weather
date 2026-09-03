@@ -46,8 +46,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auracast.weather.data.llm.GemmaDownloadState
+import com.auracast.weather.data.translate.LanguageDownloadState
 import com.auracast.weather.data.translate.TranslationManager
 import com.auracast.weather.ui.components.WeatherIcon
+import com.auracast.weather.ui.components.rememberTranslated
 import com.auracast.weather.ui.theme.WeatherPalette
 import kotlinx.coroutines.launch
 
@@ -88,7 +90,10 @@ fun OnboardingScreen(
                     )
                     3 -> LanguagePage(
                         selected = state.selectedLanguage,
+                        downloadStatus = state.languageDownloadState,
+                        allDownloadStates = state.languageDownloadStates,
                         onSelect = viewModel::onLanguageSelected,
+                        onRetryCellular = viewModel::retryLanguageDownloadWithCellular,
                         onFinish = viewModel::completeOnboarding,
                     )
                 }
@@ -159,9 +164,10 @@ private fun OnboardingPageScaffold(
 
 @Composable
 private fun WelcomePage() {
+    // Even onboarding itself should respect the chosen language once downloaded — use translated helpers.
     OnboardingPageScaffold(
-        title = "Welcome to AuraCast",
-        subtitle = "Live weather, animated radar, and a daily forecast narrated just for you — all built to run right on your phone.",
+        title = rememberTranslated("Welcome to AuraCast"),
+        subtitle = rememberTranslated("Live weather, animated radar, and a daily forecast narrated just for you — all built to run right on your phone."),
     ) {
         WeatherIcon(wmoCode = 1, isDay = true)
     }
@@ -174,16 +180,16 @@ private fun LocationPage(onNext: () -> Unit) {
     ) { onNext() }
 
     OnboardingPageScaffold(
-        title = "Know before you go",
-        subtitle = "Share your location so we can show accurate current conditions and radar for right where you are. You can always search a city manually instead.",
+        title = rememberTranslated("Know before you go"),
+        subtitle = rememberTranslated("Share your location so we can show accurate current conditions and radar for right where you are. You can always search a city manually instead."),
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Button(onClick = { permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION) }) {
-                Text("Enable Location")
+                Text(rememberTranslated("Enable Location"))
             }
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = onNext, colors = ButtonDefaults.textButtonColors(contentColor = Color.White)) {
-                Text("I'll search manually")
+                Text(rememberTranslated("I'll search manually"))
             }
         }
     }
@@ -198,27 +204,27 @@ private fun AiPodcastDownloadPage(
     onContinue: () -> Unit,
 ) {
     OnboardingPageScaffold(
-        title = "Your weather, narrated",
-        subtitle = "AuraCast uses Gemma 4, running fully on your device, to turn today's forecast into a short spoken briefing — like a personal weather podcast. It never leaves your phone.",
+        title = rememberTranslated("Your weather, narrated"),
+        subtitle = rememberTranslated("AuraCast uses Gemma 4, running fully on your device, to turn today's forecast into a short spoken briefing — like a personal weather podcast. It never leaves your phone."),
     ) {
         WeatherIcon(wmoCode = 95, isDay = true)
         Spacer(Modifier.height(24.dp))
         when (downloadState) {
             is GemmaDownloadState.Idle, is GemmaDownloadState.CheckingExisting -> {
-                Button(onClick = onDownload) { Text("Download AI voice (≈2.6 GB)") }
+                Button(onClick = onDownload) { Text(rememberTranslated("Download AI voice (≈2.6 GB)")) }
                 Spacer(Modifier.height(8.dp))
                 TextButton(onClick = onSkip, colors = ButtonDefaults.textButtonColors(contentColor = Color.White)) {
-                    Text("Skip for now")
+                    Text(rememberTranslated("Skip for now"))
                 }
             }
             is GemmaDownloadState.RequiresWifi -> {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                     Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Connect to Wi-Fi to download the on-device AI model (about 2.6 GB).", style = MaterialTheme.typography.bodySmall)
+                        Text(rememberTranslated("Connect to Wi-Fi to download the on-device AI model (about 2.6 GB)."), style = MaterialTheme.typography.bodySmall)
                         Spacer(Modifier.height(12.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = onDownloadOverCellular) { Text("Use cellular anyway") }
-                            TextButton(onClick = onSkip) { Text("Skip for now") }
+                            OutlinedButton(onClick = onDownloadOverCellular) { Text(rememberTranslated("Use cellular anyway")) }
+                            TextButton(onClick = onSkip) { Text(rememberTranslated("Skip for now")) }
                         }
                     }
                 }
@@ -239,25 +245,25 @@ private fun AiPodcastDownloadPage(
                     Text("${(progress * 100).toInt()}% • ${mbDone}MB / ${mbTotal}MB", style = MaterialTheme.typography.labelSmall)
                     Spacer(Modifier.height(12.dp))
                     TextButton(onClick = onSkip, colors = ButtonDefaults.textButtonColors(contentColor = Color.White)) {
-                        Text("Continue without waiting")
+                        Text(rememberTranslated("Continue without waiting"))
                     }
                 }
             }
             is GemmaDownloadState.Verifying -> {
-                Text("Verifying download…", style = MaterialTheme.typography.bodySmall)
+                Text(rememberTranslated("Verifying download…"), style = MaterialTheme.typography.bodySmall)
             }
             is GemmaDownloadState.Complete -> {
-                Text("✓ Ready — your AI voice is fully downloaded and works offline.", style = MaterialTheme.typography.bodyMedium)
+                Text(rememberTranslated("✓ Ready — your AI voice is fully downloaded and works offline."), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(16.dp))
-                Button(onClick = onContinue) { Text("Continue") }
+                Button(onClick = onContinue) { Text(rememberTranslated("Continue")) }
             }
             is GemmaDownloadState.Failed -> {
-                Text("Download failed: ${downloadState.message}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                Text(rememberTranslated("Download failed: ${downloadState.message}"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = onDownload) { Text("Retry") }
+                    Button(onClick = onDownload) { Text(rememberTranslated("Retry")) }
                     TextButton(onClick = onSkip, colors = ButtonDefaults.textButtonColors(contentColor = Color.White)) {
-                        Text("Skip for now")
+                        Text(rememberTranslated("Skip for now"))
                     }
                 }
             }
@@ -268,7 +274,10 @@ private fun AiPodcastDownloadPage(
 @Composable
 private fun LanguagePage(
     selected: String,
+    downloadStatus: LanguageDownloadState,
+    allDownloadStates: Map<String, LanguageDownloadState>,
     onSelect: (String) -> Unit,
+    onRetryCellular: () -> Unit,
     onFinish: () -> Unit,
 ) {
     Column(
@@ -277,19 +286,26 @@ private fun LanguagePage(
     ) {
         Spacer(Modifier.height(24.dp))
         Text(
-            "In your language",
+            rememberTranslated("In your language"),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold,
             color = Color.White,
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "Pick a language — your AI report and app text will translate on-device.",
+            rememberTranslated("Pick a language — your AI report and app text will translate on-device."),
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.85f),
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(6.dp))
+        Text(
+            rememberTranslated("Free ML Kit pack (~30 MB) — downloads once, then works fully offline."),
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(20.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             modifier = Modifier.weight(1f),
@@ -299,6 +315,7 @@ private fun LanguagePage(
         ) {
             items(TranslationManager.LAUNCH_LANGUAGES) { (code, label) ->
                 val isSelected = code == selected
+                val perLangState = allDownloadStates[code]
                 // Translucent white, not colorScheme.surface — this grid sits on the raw
                 // condition gradient (Phase 16 §5.1), and surface resolves near-black in
                 // dark/dynamic themes, which read as broken solid-black tiles on the gradient.
@@ -310,14 +327,72 @@ private fun LanguagePage(
                         contentColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
                     ),
                 ) {
-                    Box(Modifier.padding(vertical = 16.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text(label, style = MaterialTheme.typography.bodyMedium)
+                    Column(
+                        Modifier.padding(vertical = 12.dp, horizontal = 6.dp).fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(label, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+                        // Per-language badge — so the user can see at a glance which packs are already cached
+                        // versus which will still need a ~30MB download.
+                        when (perLangState) {
+                            is LanguageDownloadState.Downloading -> {
+                                androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp, color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White)
+                            }
+                            is LanguageDownloadState.Ready -> {
+                                Text(if (code == "en") rememberTranslated("✓ Ready") else rememberTranslated("✓ Offline ready"), style = MaterialTheme.typography.labelSmall, color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.85f))
+                            }
+                            is LanguageDownloadState.RequiresWifi -> {
+                                Text(rememberTranslated("Needs Wi-Fi"), style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.95f))
+                            }
+                            is LanguageDownloadState.Failed -> {
+                                Text(rememberTranslated("Retry"), style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.95f))
+                            }
+                            else -> {}
+                        }
                     }
                 }
             }
         }
-        Spacer(Modifier.height(16.dp))
-        Button(onClick = onFinish, modifier = Modifier.fillMaxWidth()) { Text("Get Started") }
+        // Status strip for the currently selected language — makes the free ML Kit download explicit
+        // so the user understands why Get Started may briefly be "Downloading" and that it's free + offline after.
+        when (downloadStatus) {
+            is LanguageDownloadState.Downloading -> {
+                Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.White)
+                    Spacer(Modifier.size(8.dp))
+                    Text(rememberTranslated("Downloading language pack…"), style = MaterialTheme.typography.bodySmall, color = Color.White)
+                }
+            }
+            is LanguageDownloadState.RequiresWifi -> {
+                Card(colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.95f), contentColor = MaterialTheme.colorScheme.onSurface)) {
+                    Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(rememberTranslated("Connect to Wi-Fi to download (~30 MB), or use cellular."), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = onRetryCellular) { Text(rememberTranslated("Use cellular anyway")) }
+                            TextButton(onClick = onFinish) { Text(rememberTranslated("Continue in English for now")) }
+                        }
+                    }
+                }
+            }
+            is LanguageDownloadState.Failed -> {
+                Text(rememberTranslated("Download failed: ${downloadStatus.reason}"), style = MaterialTheme.typography.bodySmall, color = Color.White, textAlign = TextAlign.Center, modifier = Modifier.padding(vertical = 6.dp))
+            }
+            is LanguageDownloadState.Ready -> {
+                if (selected != "en") {
+                    Text(rememberTranslated("✓ Ready — this language works offline after first download."), style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.85f), textAlign = TextAlign.Center, modifier = Modifier.padding(vertical = 6.dp))
+                }
+            }
+            else -> {}
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(onClick = onFinish, modifier = Modifier.fillMaxWidth()) { Text(rememberTranslated("Get Started")) }
+        // Even if they tapped Get Started while downloading, the pack will finish in background and
+        // every string will flip to the new language via rememberTranslated as soon as the model is ready.
+        if (downloadStatus is LanguageDownloadState.Downloading) {
+            Text(rememberTranslated("You can continue — we'll apply the translation as soon as it's ready."), style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
+        }
         Spacer(Modifier.height(8.dp))
     }
 }

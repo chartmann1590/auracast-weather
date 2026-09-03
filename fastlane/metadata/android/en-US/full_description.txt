@@ -16,4 +16,4 @@ Built native in Kotlin + Jetpack Compose with dynamic color, adaptive icon, and 
 
 Whether you want a quick glance or a hands-free briefing while you get ready — AuraCast makes weather feel personal, private, and beautifully clear.
 
-Support: support@auracast.app • Website: https://auracast-weather.web.app
+Support: support@auracast.app • Website: https://auracast-weather.web.app • Open source: https://github.com/chartmann1590/auracast-weather

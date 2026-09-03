@@ -29,7 +29,8 @@ Screenshots for **phone (1080×1920)**, **7″ tablet (1200×1920)** and **10″
 |---|---|---|
 | ![Phone 1](website/public/screenshots/phone/phone-1.png) | ![7in 1](website/public/screenshots/7inch/7inch-1.png) | ![10in 1](website/public/screenshots/10inch/10inch-1.png) |
 
-▶ Promo: `website/public/assets/promo.mp4` (poster `promo-poster.png`) — also at `fastlane/metadata/android/en-US/images/promo.mp4` and embedded on the site.
+▶ Promo: `website/public/assets/promo.mp4` (poster `promo-poster.png` 1920×1080) — also at `fastlane/metadata/android/en-US/images/promo.mp4` and embedded on the site.
+- **26.8s, 1920×1080, H.264 yuv420p 30fps, AAC stereo** — 5 slides with xfade, **real human voice** (Microsoft Zira Desktop via System.Speech, loudnorm -16 LUFS, 400ms gaps, 26.8s total), icons + feature graphic + 3 screenshots, ending card shows **github.com/chartmann1590/auracast-weather** + auracast-weather.web.app. WebM VP9/Opus also provided. To publish: upload `store/promo.mp4` as **Unlisted YouTube** and paste link into `fastlane/metadata/android/en-US/video.txt` (currently placeholder) and `website/public/index.html` promo section.
 
 Adaptive icon is in place (`mipmap-anydpi-v26/ic_launcher.xml` + PNGs for mdpi → xxxhdpi) and the launcher label is **“AuraCast Weather”** (`@string/app_name`).
 

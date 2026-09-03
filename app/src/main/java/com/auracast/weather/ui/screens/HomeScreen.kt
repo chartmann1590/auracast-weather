@@ -50,6 +50,7 @@ import com.auracast.weather.data.location.LocationSearchViewModel
 import com.auracast.weather.ui.components.HomeBannerAd
 import com.auracast.weather.ui.components.WeatherIcon
 import com.auracast.weather.ui.components.WeatherIconSmall
+import com.auracast.weather.ui.components.rememberTranslated
 import com.auracast.weather.ui.theme.WeatherPalette
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,8 +62,6 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val palette = WeatherPalette.forCode(uiState.wmoCode, isNight = uiState.isNight)
-    // ConditionGradient carries both light and dark variants (Phase 16 §1) precisely so the
-    // hero doesn't clash with a dark-theme sheet below it — pick the pair that matches.
     val isDarkTheme = androidx.compose.foundation.isSystemInDarkTheme()
     val gradient = Brush.verticalGradient(
         colors = if (isDarkTheme) listOf(palette.darkStart, palette.darkEnd)
@@ -89,9 +88,6 @@ fun HomeScreen(
         }
     }
 
-    // Full-bleed condition gradient behind the whole screen (Phase 16 §5.2) — the hero
-    // content sits directly on it, and a rounded "sheet" of surface color scrolls up over
-    // it for the forecast lists, instead of everything living inside separate cards.
     Box(Modifier.fillMaxSize().background(gradient)) {
         PullToRefreshBox(
             isRefreshing = uiState.isLoading && uiState.hourly.isNotEmpty(),
@@ -102,7 +98,6 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 80.dp),
             ) {
-                // Search bar -- always visible so user can fix location
                 item {
                     Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                         OutlinedTextField(
@@ -111,7 +106,7 @@ fun HomeScreen(
                                 searchViewModel.onQueryChange(it)
                                 showSearch = it.length >= 2
                             },
-                            placeholder = { Text("Search city or zip…") },
+                            placeholder = { Text(rememberTranslated("Search city or zip…")) },
                             leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                             singleLine = true,
                             shape = RoundedCornerShape(20.dp),
@@ -147,7 +142,7 @@ fun HomeScreen(
                                 }
                             }
                         } else if (showSearch && query.length >= 2 && results.isEmpty()) {
-                            Text("No results — try another city name", style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(8.dp))
+                            Text(rememberTranslated("No results — try another city name"), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(8.dp))
                         }
                         if (!showSearch && recent.isNotEmpty()) {
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
@@ -165,7 +160,6 @@ fun HomeScreen(
                     }
                 }
 
-                // Hero — no card chrome, sits directly on the full-bleed gradient.
                 item {
                     Column(
                         Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp),
@@ -173,7 +167,7 @@ fun HomeScreen(
                     ) {
                         if (uiState.isLoading && uiState.hourly.isEmpty()) {
                             CircularProgressIndicator(color = Color.White)
-                            Text(uiState.conditionText, style = MaterialTheme.typography.titleMedium, color = Color.White, modifier = Modifier.padding(top = 12.dp))
+                            Text(rememberTranslated(uiState.conditionText), style = MaterialTheme.typography.titleMedium, color = Color.White, modifier = Modifier.padding(top = 12.dp))
                             Text(uiState.locationLabel, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.8f))
                         } else {
                             Text(
@@ -188,15 +182,15 @@ fun HomeScreen(
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White,
                             )
-                            Text(text = uiState.conditionText, style = MaterialTheme.typography.titleMedium, color = Color.White.copy(alpha = 0.95f))
+                            Text(text = rememberTranslated(uiState.conditionText), style = MaterialTheme.typography.titleMedium, color = Color.White.copy(alpha = 0.95f))
                             Text(
-                                text = "H ${uiState.highTemp}°  L ${uiState.lowTemp}°",
+                                text = rememberTranslated("H ${uiState.highTemp}°  L ${uiState.lowTemp}°"),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White.copy(alpha = 0.85f),
                             )
                             if (uiState.showCachedBanner) {
                                 Text(
-                                    text = "Showing cached data from ${uiState.cachedAgeMinutes}m ago",
+                                    text = rememberTranslated("Showing cached data from ${uiState.cachedAgeMinutes}m ago"),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Color.White.copy(alpha = 0.7f),
                                     modifier = Modifier.padding(top = 8.dp)
@@ -206,8 +200,6 @@ fun HomeScreen(
                     }
                 }
 
-                // Rounded "sheet" containing everything below the hero — visually separates
-                // the immersive gradient area from the dense forecast lists.
                 item {
                     Column(
                         Modifier
@@ -224,19 +216,19 @@ fun HomeScreen(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                         ) {
                             Column(Modifier.padding(16.dp)) {
-                                Text("Your weather, narrated →", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                Text(uiState.reportTeaser, style = MaterialTheme.typography.bodySmall)
+                                Text(rememberTranslated("Your weather, narrated →"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                                Text(rememberTranslated(uiState.reportTeaser), style = MaterialTheme.typography.bodySmall)
                             }
                         }
 
                         Text(
-                            "Hourly • 48h",
+                            rememberTranslated("Hourly • 48h"),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                         )
                         if (uiState.hourly.isEmpty() && !uiState.isLoading) {
-                            Text("Hourly data unavailable", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                            Text(rememberTranslated("Hourly data unavailable"), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                         } else {
                             LazyRow(
                                 contentPadding = PaddingValues(horizontal = 16.dp),
@@ -245,7 +237,7 @@ fun HomeScreen(
                                 items(uiState.hourly) { hour ->
                                     Card(shape = RoundedCornerShape(16.dp), modifier = Modifier.padding(vertical = 4.dp)) {
                                         Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                            Text(hour.timeLabel, style = MaterialTheme.typography.labelSmall)
+                                            Text(rememberTranslated(hour.timeLabel), style = MaterialTheme.typography.labelSmall)
                                             WeatherIconSmall(wmoCode = uiState.wmoCode, isDay = !uiState.isNight)
                                             Text("${hour.temp}°", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                                             if (hour.precipProb > 0) Text("${hour.precipProb}%", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
@@ -256,7 +248,7 @@ fun HomeScreen(
                         }
 
                         Text(
-                            "5-Day Forecast",
+                            rememberTranslated("5-Day Forecast"),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -272,7 +264,7 @@ fun HomeScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
-                                    Text(day.dayName, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+                                    Text(rememberTranslated(day.dayName), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                                     WeatherIconSmall(wmoCode = uiState.wmoCode, isDay = true)
                                     Text(
                                         "${day.high}° / ${day.low}°",
@@ -284,11 +276,9 @@ fun HomeScreen(
                         }
 
                         if (uiState.daily.isEmpty() && !uiState.isLoading) {
-                            Text("Daily forecast unavailable — pull to refresh", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp))
+                            Text(rememberTranslated("Daily forecast unavailable — pull to refresh"), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp))
                         }
 
-                        // Own fixed-height container at the very bottom, never interleaved
-                        // between forecast cards (Phase 16 §5.2).
                         HomeBannerAd(adsViewModel.adManager, adsViewModel.billingManager)
                     }
                 }

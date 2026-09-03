@@ -22,6 +22,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.auracast.weather.data.ads.AdManager
+import com.auracast.weather.data.ads.ConsentManager
+import com.auracast.weather.ui.components.rememberTranslated
 import com.auracast.weather.ui.navigation.AuraNavGraph
 import com.auracast.weather.ui.navigation.Routes
 import com.auracast.weather.ui.theme.AuraCastTheme
@@ -31,11 +33,15 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var adManager: AdManager
+    @Inject lateinit var consentManager: ConsentManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        adManager.initialize()
+        consentManager.requestConsent(this) { _ ->
+            // UMP finished (or not required / error). Now safe to initialize MobileAds.
+            adManager.initialize()
+        }
         setContent {
             AuraCastTheme {
                 val navController = rememberNavController()
@@ -50,25 +56,25 @@ class MainActivity : ComponentActivity() {
                                     selected = currentRoute == Routes.HOME,
                                     onClick = { navController.navigate(Routes.HOME) { launchSingleTop = true } },
                                     icon = { Icon(Icons.Filled.Home, contentDescription = null) },
-                                    label = { Text("Home") }
+                                    label = { Text(rememberTranslated("Home")) }
                                 )
                                 NavigationBarItem(
                                     selected = currentRoute == Routes.RADAR,
                                     onClick = { navController.navigate(Routes.RADAR) { launchSingleTop = true } },
                                     icon = { Icon(Icons.Filled.Map, contentDescription = null) },
-                                    label = { Text("Radar") }
+                                    label = { Text(rememberTranslated("Radar")) }
                                 )
                                 NavigationBarItem(
                                     selected = currentRoute == Routes.REPORT,
                                     onClick = { navController.navigate(Routes.REPORT) { launchSingleTop = true } },
                                     icon = { Icon(Icons.Filled.Mic, contentDescription = null) },
-                                    label = { Text("Report") }
+                                    label = { Text(rememberTranslated("Report")) }
                                 )
                                 NavigationBarItem(
                                     selected = currentRoute == Routes.SETTINGS,
                                     onClick = { navController.navigate(Routes.SETTINGS) { launchSingleTop = true } },
                                     icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
-                                    label = { Text("Settings") }
+                                    label = { Text(rememberTranslated("Settings")) }
                                 )
                             }
                         }

@@ -38,6 +38,7 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.toBitmap
 import com.auracast.weather.data.radar.RadarFrame
+import com.auracast.weather.ui.components.rememberTranslated
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -152,9 +153,9 @@ fun RadarScreen(viewModel: RadarViewModel = hiltViewModel()) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text("Radar unavailable: ${state.error}", style = MaterialTheme.typography.bodyMedium)
+                Text(rememberTranslated("Radar unavailable: ${state.error}"), style = MaterialTheme.typography.bodyMedium)
                 androidx.compose.material3.Button(onClick = { viewModel.retry() }, modifier = Modifier.padding(top = 12.dp)) {
-                    Text("Retry")
+                    Text(rememberTranslated("Retry"))
                 }
             }
         } else {
@@ -176,7 +177,7 @@ fun RadarScreen(viewModel: RadarViewModel = hiltViewModel()) {
                     IconButton(onClick = { viewModel.togglePlay() }) {
                         Icon(
                             if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                            contentDescription = "Play/Pause",
+                            contentDescription = rememberTranslated("Play/Pause"),
                             tint = Color.White,
                         )
                     }
@@ -189,7 +190,7 @@ fun RadarScreen(viewModel: RadarViewModel = hiltViewModel()) {
                     )
                 }
                 Text(
-                    state.attribution.ifEmpty { "Radar © RainViewer.com" },
+                    rememberTranslated(state.attribution.ifEmpty { "Radar © RainViewer.com" }),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.White.copy(alpha = 0.8f),
                     modifier = Modifier.padding(bottom = 4.dp),

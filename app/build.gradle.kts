@@ -163,6 +163,7 @@ dependencies {
 
     // Ads & Billing (Phase 10) — gated behind isAdFree/BillingManager flag
     implementation("com.google.android.gms:play-services-ads:23.6.0")
+    implementation("com.google.android.ump:user-messaging-platform:3.1.0")
     implementation("com.android.billingclient:billing-ktx:9.1.0")
 
     // ML Kit Translation (Phase 7) — on-device, downloadable language packs
