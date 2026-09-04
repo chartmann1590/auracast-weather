@@ -13,12 +13,20 @@ build/
 .cxx
 *.keystore
 *.jks
+play-service-account.json
+fastlane/play-service-account.json
+app/play-service-account.json
 /app/google-services.json.bak
+# Fastlane supply JSON — never commit service account key (use GitHub Secrets PLAY_SERVICE_ACCOUNT_JSON)
+supply.json
+fastlane/supply.json
 *.litertlm
 *.task
 /app/src/main/assets/models/
 # Keep google-services.json per Firebase guidance but ignore bak
 keystore.properties
+upload-keystore.jks.b64
+*.b64
 .kotlin/
 .firebase/
 *.hprof

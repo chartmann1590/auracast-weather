@@ -45,9 +45,49 @@ val _adMobRealAppId = _adMobSecret("admob.appId", "ADMOB_APP_ID", _adMobTestAppI
 val _adMobRealBanner = _adMobSecret("admob.bannerId", "ADMOB_BANNER_ID", _adMobTestBanner)
 val _adMobRealInterstitial = _adMobSecret("admob.interstitialId", "ADMOB_INTERSTITIAL_ID", _adMobTestInterstitial)
 
+// ── Signing — upload keystore for Play (local keystore.properties, CI via env + base64 decode in workflow)
+val _keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+fun _keystoreSecret(propKey: String, envKey: String): String? {
+    val fromEnv = System.getenv(envKey)?.trim()?.takeIf { it.isNotEmpty() }
+    if (fromEnv != null) return fromEnv
+    val fromProps = _keystoreProps.getProperty(propKey)?.trim()?.takeIf { it.isNotEmpty() }
+    if (fromProps != null) return fromProps
+    val fromProject = (findProperty(propKey) as? String)?.trim()?.takeIf { it.isNotEmpty() }
+    return fromProject
+}
+val _storeFilePath = _keystoreSecret("storeFile", "KEYSTORE_FILE") ?: "upload-keystore.jks"
+val _storePassword = _keystoreSecret("storePassword", "KEYSTORE_PASSWORD")
+val _keyAlias = _keystoreSecret("keyAlias", "KEY_ALIAS") ?: "upload"
+val _keyPassword = _keystoreSecret("keyPassword", "KEY_PASSWORD")
+
 android {
     namespace = "com.auracast.weather"
     compileSdk = 36
+
+    signingConfigs {
+        create("release") {
+            // Only configure if keystore file + passwords are present (local or CI). Otherwise unsigned allows forks/PRs to still build.
+            val ksFile = rootProject.file(_storeFilePath)
+            // In CI the workflow decodes KEYSTORE_BASE64 into upload-keystore.jks at root before this runs
+            val ciFallback = rootProject.file("upload-keystore.jks")
+            val resolvedFile = when {
+                ksFile.exists() -> ksFile
+                ciFallback.exists() -> ciFallback
+                else -> null
+            }
+            if (resolvedFile != null && _storePassword != null && _keyPassword != null) {
+                storeFile = resolvedFile
+                storePassword = _storePassword
+                keyAlias = _keyAlias
+                keyPassword = _keyPassword
+                enableV1Signing = true
+                enableV2Signing = true
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "com.auracast.weather"
@@ -83,6 +123,9 @@ android {
             buildConfigField("String", "ADMOB_BANNER_ID", "\"${_adMobRealBanner}\"")
             buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${_adMobRealInterstitial}\"")
             buildConfigField("boolean", "USE_TEST_ADS", "false")
+            // Sign with upload keystore when present; otherwise unsigned (still builds, just not Play-ready)
+            val hasSigning = (rootProject.file(_storeFilePath).exists() || rootProject.file("upload-keystore.jks").exists()) && _storePassword != null && _keyPassword != null
+            if (hasSigning) signingConfig = signingConfigs.getByName("release")
         }
     }
 

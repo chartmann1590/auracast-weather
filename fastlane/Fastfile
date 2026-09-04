@@ -1,0 +1,76 @@
+default_platform(:android)
+
+platform :android do
+  # Service account JSON is stored in GitHub Secrets PLAY_SERVICE_ACCOUNT_JSON (raw JSON, not base64)
+  # and written to fastlane/play-service-account.json in CI before supply runs.
+  # Locally, place your downloaded JSON at fastlane/play-service-account.json (gitignored).
+
+  lane :beta do
+    # Build signed AAB for Play Internal testing
+    gradle(task: "clean bundleRelease")
+    supply(
+      track: "internal",
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      json_key: "fastlane/play-service-account.json",
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+  end
+
+  lane :internal do
+    beta
+  end
+
+  lane :closed do
+    gradle(task: "clean bundleRelease")
+    supply(
+      track: "closed",
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      json_key: "fastlane/play-service-account.json",
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+  end
+
+  lane :production do
+    gradle(task: "clean bundleRelease")
+    supply(
+      track: "production",
+      rollout: "0.2",
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      json_key: "fastlane/play-service-account.json",
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+  end
+
+  lane :metadata_only do
+    # Upload only listing metadata/images/video without binary — useful for first listing setup
+    supply(
+      track: "internal",
+      json_key: "fastlane/play-service-account.json",
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+  end
+
+  lane :validate do
+    # Local dry-run: check fastlane metadata is valid before pushing
+    supply(
+      track: "internal",
+      json_key: "fastlane/play-service-account.json",
+      validate_only: true,
+      skip_upload_aab: true,
+      skip_upload_apk: true
+    )
+  end
+end

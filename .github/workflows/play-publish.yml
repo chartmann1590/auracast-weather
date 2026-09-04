@@ -1,0 +1,100 @@
+name: Play Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "Play track to deploy to"
+        required: true
+        default: "internal"
+        type: choice
+        options: [internal, closed, production]
+  # Optional: auto on tag push like v0.1.0 — uncomment if you want tag-driven releases
+  # push:
+  #   tags: ["v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Service account + keystore + AdMob are all injected via GitHub Secrets — never committed
+    env:
+      ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+      ADMOB_BANNER_ID: ${{ secrets.ADMOB_BANNER_ID }}
+      ADMOB_INTERSTITIAL_ID: ${{ secrets.ADMOB_INTERSTITIAL_ID }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Play secrets present
+        run: |
+          missing=0
+          for v in PLAY_SERVICE_ACCOUNT_JSON KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!v}" ]; then echo "::warning::Secret $v is empty — Play publish will fail without it"; missing=1; fi
+          done
+          # AdMob secrets are optional for build (falls back to test IDs) but warn
+          for v in ADMOB_APP_ID ADMOB_BANNER_ID ADMOB_INTERSTITIAL_ID; do
+            if [ -z "${!v}" ]; then echo "::notice::AdMob secret $v empty — release will use test IDs (ok for forks)"; fi
+          done
+          if [ "$missing" = "1" ]; then echo "::error::Missing Play signing/service secrets — check Settings → Secrets → Actions"; fi
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Ruby + Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Decode service account JSON
+        run: |
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then echo "No PLAY_SERVICE_ACCOUNT_JSON"; exit 1; fi
+          # Secret is raw JSON — write verbatim (supports both raw and base64 input)
+          if echo "$PLAY_SERVICE_ACCOUNT_JSON" | grep -q '"type": "service_account"'; then
+            echo "$PLAY_SERVICE_ACCOUNT_JSON" > fastlane/play-service-account.json
+          else
+            echo "$PLAY_SERVICE_ACCOUNT_JSON" | base64 -d > fastlane/play-service-account.json
+          fi
+          echo "Service account JSON written: $(wc -c < fastlane/play-service-account.json) bytes"
+          cat fastlane/play-service-account.json | grep -q "play-publisher@auracast-weather" && echo "Service account email OK" || echo "::warning::Unexpected service account email"
+
+      - name: Decode upload keystore
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "No KEYSTORE_BASE64"; exit 1; fi
+          echo "$KEYSTORE_BASE64" | base64 -d > upload-keystore.jks
+          echo "Keystore decoded: $(wc -c < upload-keystore.jks) bytes"
+          # Also ensure keystore.properties is not needed — build.gradle reads env vars + file existence
+
+      - name: Verify no hardcoded AdMob IDs
+        run: |
+          ALLOWED_TEST_ID="3940256099942544"
+          FOUND=$(git grep -E "ca-app-pub-[0-9]+[~/][0-9]+" -- ':!local.properties' 2>/dev/null | grep -v "$ALLOWED_TEST_ID" || true)
+          if [ -n "$FOUND" ]; then echo "::error::Non-test AdMob ID leaked"; echo "$FOUND"; exit 1; fi
+          echo "AdMob check OK"
+
+      - name: Build signed AAB (bundleRelease)
+        run: ./gradlew bundleRelease --stacktrace
+
+      - name: Upload to Play — internal (or chosen track)
+        run: |
+          TRACK="${{ inputs.track }}"
+          if [ -z "$TRACK" ]; then TRACK="internal"; fi
+          echo "Supplying to Play track: $TRACK"
+          bundle exec fastlane $TRACK
+
+      - name: Upload AAB artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aab
+          path: app/build/outputs/bundle/release/*.aab

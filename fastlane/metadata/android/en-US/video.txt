@@ -1,2 +1,1 @@
-https://youtu.be/dQw4w9WgXcQ
-# TODO before Play submission: upload store/promo.mp4 (26.8s, 1920x1080, human voice via Zira, ends on github.com/chartmann1590/auracast-weather) as UNLISTED YouTube and replace the line above with that URL. Preview also at https://auracast-weather.web.app/assets/promo.mp4 and website embeds. Keep this file as one valid YouTube URL for `fastlane supply`.
+https://youtu.be/33B6BICsm7c
