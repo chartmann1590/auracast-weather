@@ -2,6 +2,7 @@ package com.auracast.weather.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.auracast.weather.data.translate.AppLanguage
 import com.auracast.weather.data.translate.LanguageDownloadState
 import com.auracast.weather.data.translate.TranslationManager
 import com.auracast.weather.data.translate.TranslationPreferencesDataStore
@@ -24,6 +25,7 @@ data class SettingsUiState(
     val translationStatus: String = "Ready",
     val languageDownloadStates: Map<String, LanguageDownloadState> = emptyMap(),
     val showLanguagePicker: Boolean = false,
+    val languageSearchQuery: String = "",
     val severeAlertsEnabled: Boolean = false,
     val dailyBriefingEnabled: Boolean = false,
     val briefingTime: String = "07:00",
@@ -98,25 +100,26 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(previewingVoiceName = name)
             ttsRepository.previewVoice(name)
-            delay(3500) // engine.speak() is fire-and-forget; approximate the sample's spoken length so the "previewing" state is visible
+            delay(3500)
             _uiState.value = _uiState.value.copy(previewingVoiceName = null)
         }
     }
 
     fun setMetric(metric: Boolean) { _uiState.value = _uiState.value.copy(useMetric = metric) }
     fun setThemeMode(mode: String) { _uiState.value = _uiState.value.copy(themeMode = mode) }
-    fun openLanguagePicker() { _uiState.value = _uiState.value.copy(showLanguagePicker = true) }
+    fun openLanguagePicker() { _uiState.value = _uiState.value.copy(showLanguagePicker = true, languageSearchQuery = "") }
     fun dismissLanguagePicker() { _uiState.value = _uiState.value.copy(showLanguagePicker = false) }
+    fun onLanguageSearchChange(query: String) { _uiState.value = _uiState.value.copy(languageSearchQuery = query) }
 
     fun selectLanguage(code: String) {
         viewModelScope.launch {
             translationRepository.setLanguage(code)
-            // Immediately kick off free ML Kit download so the app flips to the new language as soon as pack is ready.
-            if (code != "en") translationRepository.ensureModelDownloaded(code, wifiOnly = true)
+            // Immediately kick off free ML Kit download so the app flips to the new language
+            if (code != "en") translationRepository.ensureModelDownloaded(code, wifiOnly = false)
         }
     }
 
-    fun retryLanguageDownload(code: String, allowCellular: Boolean = false) {
+    fun retryLanguageDownload(code: String, allowCellular: Boolean = true) {
         viewModelScope.launch { translationRepository.ensureModelDownloaded(code, wifiOnly = !allowCellular) }
     }
 

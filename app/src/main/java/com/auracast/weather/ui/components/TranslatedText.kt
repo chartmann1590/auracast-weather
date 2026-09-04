@@ -1,6 +1,5 @@
 package com.auracast.weather.ui.components
 
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,34 +24,50 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.auracast.weather.ui.screens.TranslationViewModel
 
 /**
- * App-wide on-device translation helpers (Phase 7).
+ * App-wide on-device translation helpers.
  *
  * [rememberTranslated] runs every visible string through the free ML Kit on-device pack for the
  * user's native language (chosen in onboarding, changeable in Settings). Once the pack is downloaded
  * it works fully offline. If the target is English or the model isn't ready yet, the original
  * English text is shown — never blank.
  *
- * Use [TranslatedText] as a drop-in replacement for `Text("...")` when you want that string localized,
- * or [rememberTranslated] when you need just the translated String (e.g. for `contentDescription`,
- * `TextField.placeholder`, or interpolated sentences).
+ * Uses memory caching for zero-flicker instant rendering on recomposition and screen transitions.
  */
-
-// Single lightweight VM shared across all helper call sites — holds current language flow + translate cache via repo
 @Composable
 fun rememberTranslated(original: String): String {
     if (original.isBlank()) return original
     val vm: TranslationViewModel = hiltViewModel()
     val lang by vm.currentLanguage.collectAsState()
     val revision by vm.revision.collectAsState()
-    var translated by remember(original, lang, revision) { mutableStateOf(original) }
+
+    if (lang == "en") return original
+
+    // Zero-flicker cached initialization
+    val initialValue = vm.getCachedTranslation(original, lang) ?: original
+    var translated by remember(original, lang, revision) { mutableStateOf(initialValue) }
+
     LaunchedEffect(original, lang, revision) {
-        translated = vm.translate(original)
+        val result = vm.translate(original)
+        if (result != translated) {
+            translated = result
+        }
     }
     return translated
 }
 
 /**
- * Drop-in replacement for `Text` that automatically translates [text] via ML Kit.
+ * Helper to translate a template format string and substitute arguments.
+ */
+@Composable
+fun rememberTranslatedFormat(formatTemplate: String, vararg args: Any): String {
+    val translatedTemplate = rememberTranslated(formatTemplate)
+    return remember(translatedTemplate, *args) {
+        runCatching { String.format(translatedTemplate, *args) }.getOrDefault(formatTemplate)
+    }
+}
+
+/**
+ * Drop-in replacement for Material [Text] that automatically translates [text] via on-device ML Kit.
  * All style/layout params are forwarded to Material [Text] unchanged.
  */
 @Composable

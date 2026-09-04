@@ -116,17 +116,32 @@ class TemplateFallbackEngine @Inject constructor() : AiReportEngine {
     override val name = "template"
     override suspend fun isAvailable(): Boolean = true
     override fun generateReport(prompt: String): Flow<String> = flow {
-        val sentences = listOf(
-            "Good morning! ",
-            "Here's your AuraCast weather briefing. ",
-            "Conditions are looking great today — ",
-            "expect a pleasant day with a high near 84 and a low around 62. ",
-            "Winds light at about 8 mph, humidity near 60 percent. ",
-            "Stay tuned for updates and enjoy your day!"
-        )
+        val location = prompt.lines().firstOrNull { it.startsWith("Location:") }?.removePrefix("Location:")?.trim() ?: "your area"
+        val current = prompt.lines().firstOrNull { it.startsWith("Current:") }?.removePrefix("Current:")?.trim()
+        val highLow = prompt.lines().firstOrNull { it.startsWith("Today high/low:") }?.removePrefix("Today high/low:")?.trim()
+        val hourly = prompt.lines().firstOrNull { it.startsWith("Hourly trend:") }?.removePrefix("Hourly trend:")?.trim()
+        val tomorrow = prompt.lines().firstOrNull { it.startsWith("Tomorrow:") }?.removePrefix("Tomorrow:")?.trim()
+
+        val sentences = buildList {
+            add("Good day! ")
+            add("Here is your AuraCast weather briefing for $location. ")
+            if (!current.isNullOrEmpty()) {
+                add("Currently, conditions are $current. ")
+            }
+            if (!highLow.isNullOrEmpty()) {
+                add("For today, expect temperatures ranging from $highLow. ")
+            }
+            if (!hourly.isNullOrEmpty() && hourly != "steady") {
+                add("Looking at the upcoming hours, conditions are $hourly. ")
+            }
+            if (!tomorrow.isNullOrEmpty() && tomorrow != "—") {
+                add("Looking ahead to tomorrow, we anticipate $tomorrow. ")
+            }
+            add("Stay prepared, enjoy your day, and tune in for live updates anytime!")
+        }
         for (s in sentences) {
             emit(s)
-            delay(180) // simulate token streaming
+            delay(120) // simulate smooth token streaming
         }
     }
 }

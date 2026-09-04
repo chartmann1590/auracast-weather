@@ -72,11 +72,11 @@ class TtsRepository @Inject constructor(
         return result
     }
 
-    /** Voices for the device's current language, deduped, best quality first. */
-    suspend fun getAvailableVoices(): List<VoiceOption> {
+    /** Voices for the specified or device's current language, deduped, best quality first. */
+    suspend fun getAvailableVoices(languageCode: String? = null): List<VoiceOption> {
         val engine = ensureInit()
         if (!initialized) return emptyList()
-        val lang = Locale.getDefault().language
+        val lang = languageCode ?: Locale.getDefault().language
         return engine.voices.orEmpty()
             .filter { it.locale.language == lang && !it.features.orEmpty().contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED) }
             .distinctBy { it.name }
@@ -133,9 +133,12 @@ class TtsRepository @Inject constructor(
         }
     }
 
-    suspend fun speak(text: String, onProgress: (Float) -> Unit = {}, onComplete: () -> Unit = {}) {
+    suspend fun speak(text: String, languageCode: String? = null, onProgress: (Float) -> Unit = {}, onComplete: () -> Unit = {}) {
         val engine = ensureInit()
         if (!initialized) return
+        if (languageCode != null) {
+            runCatching { engine.language = Locale(languageCode) }
+        }
         applySelectedVoice()
 
         val sentences = text.split(Regex("(?<=[.!?])\\s+")).filter { it.isNotBlank() }

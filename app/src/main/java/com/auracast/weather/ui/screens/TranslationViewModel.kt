@@ -2,6 +2,7 @@ package com.auracast.weather.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.auracast.weather.data.translate.AppLanguage
 import com.auracast.weather.data.translate.LanguageDownloadState
 import com.auracast.weather.data.translate.TranslationManager
 import com.auracast.weather.data.translate.TranslationPreferencesDataStore
@@ -41,6 +42,9 @@ class TranslationViewModel @Inject constructor(
         }
     }
 
+    fun getCachedTranslation(text: String, target: String): String? =
+        repository.getCachedTranslation(text, target)
+
     suspend fun translate(text: String): String = repository.translate(text)
 
     suspend fun translateTo(text: String, target: String): String = repository.translateTo(text, target)
@@ -51,8 +55,8 @@ class TranslationViewModel @Inject constructor(
         }
     }
 
-    /** Called from onboarding/Settings when user taps a non-English language. */
-    fun ensureModelDownloaded(code: String, wifiOnly: Boolean = true) {
+    /** Called from onboarding/Settings when user taps a language. */
+    fun ensureModelDownloaded(code: String, wifiOnly: Boolean = false) {
         viewModelScope.launch {
             repository.ensureModelDownloaded(code, wifiOnly)
         }
@@ -69,4 +73,7 @@ class TranslationViewModel @Inject constructor(
             _isRefreshing.value = false
         }
     }
+
+    fun searchLanguages(query: String): List<AppLanguage> =
+        TranslationManager.searchLanguages(query)
 }

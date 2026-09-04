@@ -32,15 +32,18 @@ class ConsentManager @Inject constructor(
         // )
         val params = paramsBuilder.build()
 
-        consentInfo.requestConsentInfoUpdate(params, {
-            UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { error ->
-                // error == null means form shown and dismissed or not required; we can now init MobileAds
-                onResult(error == null)
+        consentInfo.requestConsentInfoUpdate(
+            activity,
+            params,
+            {
+                UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { error ->
+                    onResult(error == null)
+                }
+            },
+            { _ ->
+                onResult(false)
             }
-        }, { error ->
-            // Failed to update — proceed without consent form (still initialize ads, they will be non-personalized)
-            onResult(false)
-        })
+        )
 
         if (consentInfo.canRequestAds()) {
             // Already have consent or not required — ensure form is not needed again

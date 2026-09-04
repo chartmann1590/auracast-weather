@@ -24,8 +24,8 @@ sealed class LanguageDownloadState {
  * - in-memory download status per language (so Settings/Onboarding can show spinner/check/error)
  * - cached translated strings via [TranslationManager] (free, on-device ML Kit)
  *
- * Every visible string in the app should go through [translate] (or the Compose helper
- * `rememberTranslatedText` which delegates here) so selecting a native language in
+ * Every visible string in the app goes through [translate] (or the Compose helper
+ * `rememberTranslated` / `TranslatedText` which delegates here) so selecting a native language in
  * onboarding instantly translates the whole app once the ML Kit pack finishes.
  */
 @Singleton
@@ -48,6 +48,14 @@ class TranslationRepository @Inject constructor(
 
     suspend fun currentLabel(): String = prefs.languageLabelFlow.first()
 
+    /**
+     * Fast synchronous check for already-translated strings in the in-memory cache.
+     */
+    fun getCachedTranslation(text: String, targetLanguage: String): String? {
+        if (targetLanguage == TranslateLanguage.ENGLISH || text.isBlank()) return text
+        return manager.getCached(text, TranslationManager.SOURCE_LANGUAGE, targetLanguage)
+    }
+
     suspend fun setLanguage(code: String) {
         val label = TranslationManager.labelFor(code)
         prefs.setLanguage(code, label)
@@ -67,10 +75,9 @@ class TranslationRepository @Inject constructor(
 
     /**
      * Ensures the ML Kit pack for [code] is downloaded. Tracks state in [downloadStates] so UI
-     * can render downloading/ready/failed. Wifi-only by default to respect data plans, but
-     * caller can pass wifiOnly=false for the "use cellular anyway" button.
+     * can render downloading/ready/failed.
      */
-    suspend fun ensureModelDownloaded(code: String, wifiOnly: Boolean = true): Boolean {
+    suspend fun ensureModelDownloaded(code: String, wifiOnly: Boolean = false): Boolean {
         if (code == TranslateLanguage.ENGLISH) return true
         val alreadyReady = _downloadStates.value[code] == LanguageDownloadState.Ready
         if (alreadyReady && manager.isModelDownloadedAsync(code)) return true
@@ -83,8 +90,7 @@ class TranslationRepository @Inject constructor(
             _revision.value++
             return true
         }
-        // Distinguish wifi-required failure from generic network failure — manager returns false in both cases,
-        // so infer by checking if a wifi-only retry would be the likely fix (caller can surface a "use cellular" action).
+
         val isWifiOnlyFailure = wifiOnly
         _downloadStates.value = _downloadStates.value.toMutableMap().apply {
             this[code] = if (isWifiOnlyFailure) LanguageDownloadState.RequiresWifi else LanguageDownloadState.Failed("Download failed — check connection and try again.")
@@ -117,8 +123,7 @@ class TranslationRepository @Inject constructor(
         if (text.isBlank()) return text
         val target = currentLanguage()
         if (target == TranslateLanguage.ENGLISH) return text
-        // If model isn't ready, show English so the user still sees something useful instead of blank.
-        // Settings will prompt them to download; onboarding blocks Get Started until ready or explicitly skipped.
+        // If model isn't ready, show original so the user still sees something useful instead of blank.
         val ready = isModelReady(target)
         if (!ready) return text
         return manager.translate(text, TranslationManager.SOURCE_LANGUAGE, target)
@@ -132,10 +137,11 @@ class TranslationRepository @Inject constructor(
         return manager.translate(text, source, target)
     }
 
-    /** Refreshes download state for all launch languages — call on Settings entry so each row shows correct badge. */
+    /** Refreshes download state for all supported languages — call on Settings entry so each row shows correct badge. */
     suspend fun refreshAllDownloadStates() {
         val states = mutableMapOf<String, LanguageDownloadState>()
-        for ((code, _) in TranslationManager.LAUNCH_LANGUAGES) {
+        for (lang in TranslationManager.SUPPORTED_LANGUAGES) {
+            val code = lang.code
             states[code] = when {
                 code == TranslateLanguage.ENGLISH -> LanguageDownloadState.Ready
                 manager.isModelDownloadedAsync(code) -> LanguageDownloadState.Ready

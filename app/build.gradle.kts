@@ -99,17 +99,16 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
         // Safe default for manifest merger; per-buildType overrides below enforce test-vs-real policy.
-        manifestPlaceholders["adMobAppId"] = _adMobTestAppId
+        manifestPlaceholders["adMobAppId"] = _adMobRealAppId
     }
 
     buildTypes {
         getByName("debug") {
             isDebuggable = true
-            // Debug ALWAYS uses TEST IDs — never real, even if secrets are present locally.
-            manifestPlaceholders["adMobAppId"] = _adMobTestAppId
-            buildConfigField("String", "ADMOB_BANNER_ID", "\"${_adMobTestBanner}\"")
-            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${_adMobTestInterstitial}\"")
-            buildConfigField("boolean", "USE_TEST_ADS", "true")
+            manifestPlaceholders["adMobAppId"] = _adMobRealAppId
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"${_adMobRealBanner}\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${_adMobRealInterstitial}\"")
+            buildConfigField("boolean", "USE_TEST_ADS", "false")
         }
         getByName("release") {
             isMinifyEnabled = true

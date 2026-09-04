@@ -3,63 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AuraCast Weather — Your weather, narrated. Fully on-device.</title>
-  <meta name="description" content="AuraCast Weather: AI-narrated on-device weather podcast with Gemma 4 + neural TTS, live radar, 58-language translation. No account needed." />
+  <title>AuraCast Weather — Your weather, narrated.</title>
+  <meta name="description" content="AuraCast Weather gives you a personal, spoken weather briefing every morning — with live radar and forecasts that work in 58 languages. No account needed, free on Google Play." />
   <meta property="og:title" content="AuraCast Weather — Your weather, narrated." />
-  <meta property="og:description" content="AI weather podcast generated fully on-device with Gemma 4 + neural TTS. Live radar, no account." />
+  <meta property="og:description" content="A daily spoken forecast, live radar, and 5-day outlook — right on your phone." />
   <meta property="og:image" content="/assets/feature-graphic.png" />
   <meta property="og:type" content="website" />
   <meta name="theme-color" content="#4FA8FF" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234FA8FF'/><circle cx='42' cy='38' r='18' fill='%23FFD873'/><path d='M22 66 h56 a10 10 0 0 1 -10 10 h-36 a10 10 0 0 1 -10 -10' fill='white'/><circle cx='38' cy='62' r='14' fill='white'/><circle cx='58' cy='58' r='16' fill='white'/><circle cx='73' cy='65' r='13' fill='white'/></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <style>
-    :root{--blue:#4FA8FF;--blue-dark:#2979FF;--yellow:#FFD873;--ink:#0B1E3D;--muted:#5b6b82;--bg:#f6f8fc;--card:#ffffff;--radius:16px}
+    :root{--blue:#4FA8FF;--blue-dark:#2979FF;--yellow:#FFD873;--ink:#0B1E3D;--muted:#5b6b82;--bg:#f6f8fc;--card:#ffffff;--radius:18px}
     *{box-sizing:border-box}
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;color:var(--ink);background:var(--bg);line-height:1.65;-webkit-font-smoothing:antialiased}
     a{color:var(--blue-dark);text-decoration:none}
     a:hover{text-decoration:underline}
     .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
-    header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.9);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid #e6ebf2}
+    header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.92);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid #e6ebf2}
     header .wrap{display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
-    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-0.02em}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-0.02em;font-size:17px}
     .brand-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));display:grid;place-items:center;color:white;font-size:18px}
     nav a{margin-left:18px;font-weight:600;font-size:14px;color:var(--muted)}
-    nav a.cta{background:var(--ink);color:white;padding:8px 14px;border-radius:999px}
-    .hero{padding:32px 0 24px;}
-    .hero-card{background:linear-gradient(135deg,var(--blue),var(--blue-dark));border-radius:24px;color:white;overflow:hidden;position:relative}
-    .hero-inner{display:grid;grid-template-columns:1.1fr 0.9fr;gap:24px;padding:32px}
-    .hero h1{font-family:Lexend,Manrope,Inter,sans-serif;font-size:42px;line-height:1.05;margin:0 0 10px;letter-spacing:-0.03em}
-    .hero p.lead{font-size:18px;margin:0 0 18px;opacity:0.95}
-    .hero ul{margin:0 0 18px 18px;padding:0;opacity:0.95}
+    nav a.cta{background:var(--ink);color:white;padding:9px 16px;border-radius:999px;font-weight:700}
+    .hero{padding:28px 0 18px}
+    .hero-card{background:linear-gradient(135deg,var(--blue),var(--blue-dark));border-radius:24px;color:white;overflow:hidden}
+    .hero-inner{display:grid;grid-template-columns:1.15fr 0.85fr;gap:28px;padding:36px}
+    .hero h1{font-size:44px;line-height:1.02;margin:0 0 12px;letter-spacing:-0.03em}
+    .hero p.lead{font-size:18px;margin:0 0 16px;opacity:0.96}
+    .hero ul{margin:0 0 20px 18px;padding:0;opacity:0.95}
+    .hero ul li{margin:6px 0}
     .badge-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .play-badge{display:inline-flex;align-items:center;gap:10px;background:black;color:white;padding:10px 16px;border-radius:12px;font-weight:700;line-height:1}
+    .play-badge{display:inline-flex;align-items:center;gap:10px;background:black;color:white;padding:11px 18px;border-radius:12px;font-weight:700;line-height:1}
     .play-badge small{display:block;font-weight:500;opacity:0.8;font-size:10px;letter-spacing:0.08em}
-    .play-badge span{font-size:16px}
-    .feature-graphic-wrap{background:white;border-radius:16px;padding:8px;box-shadow:0 10px 30px rgba(11,30,61,0.15)}
-    .feature-graphic-wrap img{width:100%;height:auto;display:block;border-radius:12px}
-    .pill{display:inline-block;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600}
+    .feature-wrap{background:white;border-radius:16px;padding:8px;box-shadow:0 10px 30px rgba(11,30,61,0.15)}
+    .feature-wrap img{width:100%;height:auto;display:block;border-radius:12px}
     .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:22px 0}
-    .card{background:var(--card);border:1px solid #e6ebf2;border-radius:var(--radius);padding:18px}
-    .card h3{margin:4px 0 6px;font-size:16px}
-    .card p{margin:0;color:var(--muted);font-size:14px}
-    .card .icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#eaf2ff;color:var(--blue-dark);font-size:18px}
-    section{padding:28px 0}
-    h2{font-family:Lexend,Manrope,sans-serif;font-size:28px;letter-spacing:-0.02em;margin:0 0 8px}
+    .card{background:var(--card);border:1px solid #e6ebf2;border-radius:var(--radius);padding:20px}
+    .card h3{margin:6px 0 6px;font-size:17px}
+    .card p{margin:0;color:var(--muted);font-size:14.5px}
+    .card .icon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:#eaf2ff;color:var(--blue-dark);font-size:19px}
+    section{padding:30px 0}
+    h2{font-size:28px;letter-spacing:-0.02em;margin:0 0 8px}
     .sub{color:var(--muted);margin:0 0 18px}
-    /* Screenshots */
-    .tabs{display:flex;gap:8px;margin:12px 0 16px}
+    .tabs{display:flex;gap:8px;margin:14px 0 16px}
     .tab{padding:8px 14px;border-radius:999px;border:1px solid #dfe7f5;background:white;font-weight:700;font-size:13px;cursor:pointer}
     .tab.active{background:var(--ink);color:white;border-color:var(--ink)}
     .shot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
     .shot{border-radius:16px;overflow:hidden;border:1px solid #e6ebf2;background:white;box-shadow:0 6px 18px rgba(11,30,61,0.08)}
     .shot img{width:100%;height:auto;display:block}
     .shot figcaption{padding:10px 12px;font-size:13px;font-weight:600;color:var(--muted);text-align:center;background:white}
-    /* Video */
     .video-card{background:var(--card);border:1px solid #e6ebf2;border-radius:var(--radius);overflow:hidden;box-shadow:0 10px 30px rgba(11,30,61,0.08)}
     .video-wrap{position:relative;aspect-ratio:16/9;background:#0b1e3d}
     .video-wrap video{width:100%;height:100%;object-fit:cover;display:block}
-    .video-meta{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    /* CTA */
+    .video-meta{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .faq{display:grid;gap:12px}
+    .qa{background:white;border:1px solid #e6ebf2;border-radius:14px;padding:16px 18px}
+    .qa h3{margin:0 0 6px;font-size:16px}
+    .qa p{margin:0;color:var(--muted);font-size:14px}
     .cta-band{background:var(--ink);color:white;border-radius:24px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:24px 0}
     footer{padding:28px 0;color:var(--muted);font-size:13px;border-top:1px solid #e6ebf2;background:white;margin-top:24px}
     @media (max-width:860px){
@@ -74,16 +73,14 @@
 <body>
   <header>
     <div class="wrap">
-      <div class="brand">
-        <div class="brand-mark">☁️</div>
-        AuraCast Weather
-      </div>
+      <div class="brand"><div class="brand-mark">☁️</div> AuraCast Weather</div>
       <nav>
         <a href="#features">Features</a>
         <a href="#screenshots">Screenshots</a>
-        <a href="#video">Promo</a>
+        <a href="#video">Video</a>
+        <a href="#faq">FAQ</a>
         <a href="/privacy.html">Privacy</a>
-        <a class="cta" href="#download">Get the app</a>
+        <a class="cta" href="https://play.google.com/store/apps/details?id=com.auracast.weather" target="_blank" rel="noopener">Get the app</a>
       </nav>
     </div>
   </header>
@@ -93,73 +90,70 @@
       <div class="hero-card">
         <div class="hero-inner">
           <div>
-            <span class="pill">● On-device AI • No account • No cloud AI calls</span>
-            <h1>Your weather,<br/>narrated.</h1>
-            <p class="lead"><strong>Fully on-device</strong> with Gemma 4 + neural TTS. Current + 48-hour + 5-day forecast, animated radar, 58-language translation — right on your phone.</p>
+            <h1>Your weather,<br>narrated.</h1>
+            <p class="lead">Start your morning with a calm, personal briefing. Live radar, hourly and 5-day forecasts — spoken in a natural voice and translated into your language.</p>
             <ul>
-              <li>AI weather podcast — real neural voice, pick your favorite in Settings</li>
-              <li>Animated precipitation radar (RainViewer + NWS) with playback</li>
-              <li>Light/dark themes, widgets, severe-weather alerts</li>
+              <li>Spoken daily briefing — choose your favorite voice</li>
+              <li>Live animated radar you can play and scrub</li>
+              <li>Works in 58 languages, even offline</li>
             </ul>
             <div class="badge-row">
-              <a class="play-badge" href="#download" aria-label="Get it on Google Play">
+              <a class="play-badge" href="https://play.google.com/store/apps/details?id=com.auracast.weather" target="_blank" rel="noopener" aria-label="Get it on Google Play">
                 <span>▶</span>
                 <span><small>GET IT ON</small>Google Play</span>
               </a>
-              <span style="opacity:.9;font-size:13px">Coming soon • Join the waitlist: <a href="mailto:support@auracast.app" style="color:white;text-decoration:underline">support@auracast.app</a></span>
+              <span style="opacity:.9;font-size:13px">Free on Android • No account needed</span>
             </div>
+            <p style="margin:14px 0 0;font-size:13px;opacity:0.9">Questions? <a href="mailto:support@auracast.app" style="color:white;text-decoration:underline">support@auracast.app</a> • <a href="https://github.com/chartmann1590/auracast-weather" target="_blank" rel="noopener" style="color:white;text-decoration:underline">GitHub</a></p>
           </div>
-          <div class="feature-graphic-wrap">
-            <img src="/assets/feature-graphic.png" alt="AuraCast Weather feature graphic — 1024x500 Play Store banner" width="1024" height="500" loading="eager" />
-            <div style="padding:8px 4px 2px;font-size:12px;color:#5b6b82;text-align:center">Feature graphic • 1024×500 • Play Console listing asset</div>
+          <div class="feature-wrap">
+            <img src="/assets/feature-graphic.png" alt="AuraCast Weather preview" width="1024" height="500" loading="eager" />
           </div>
         </div>
       </div>
     </div>
 
     <section id="features">
-      <h2>Everything you need — nothing you don't</h2>
-      <p class="sub">Native Android • Kotlin + Compose • Material 3 • Offline-first where it counts.</p>
+      <h2>Made for everyday life</h2>
+      <p class="sub">Everything you need to plan your day — nothing that gets in the way.</p>
       <div class="grid3">
-        <div class="card"><div class="icon">🌤️</div><h3>Current, hourly, daily</h3><p>Open-Meteo + NWS. 48-hour hourly strip and 5-day forecast with real <em>Meteocons</em> icons.</p></div>
-        <div class="card"><div class="icon">🎙️</div><h3>AI weather podcast</h3><p>Gemma 4 runs <strong>on-device</strong> via LiteRT-LM. Natural report, read aloud with a neural voice you choose.</p></div>
-        <div class="card"><div class="icon">🛰️</div><h3>Animated radar</h3><p>RainViewer + NWS tiles on an OSM base map (osmdroid) with Coil-backed overlay and playback controls.</p></div>
-        <div class="card"><div class="icon">🌐</div><h3>Translate offline</h3><p>ML Kit — 58 languages, models download once then work fully offline. No server round-trip.</p></div>
-        <div class="card"><div class="icon">🔔</div><h3>Alerts & briefing</h3><p>Severe-weather alerts and daily briefing via WorkManager + FCM. No account required.</p></div>
-        <div class="card"><div class="icon">🔒</div><h3>Privacy first</h3><p>Report never leaves your device. Only forecast + radar fetches hit the network. See <a href="/privacy.html">Privacy Policy</a>.</p></div>
+        <div class="card"><div class="icon">🌤️</div><h3>Clear, complete forecast</h3><p>See today, the next 48 hours, and the full 5-day outlook at a glance. Beautiful icons make it easy to read.</p></div>
+        <div class="card"><div class="icon">🎙️</div><h3>Your daily briefing, spoken</h3><p>Tap play and hear your weather like a short podcast. Pick the voice you like best in Settings.</p></div>
+        <div class="card"><div class="icon">🛰️</div><h3>Live radar, made simple</h3><p>Watch rain move in real time. Play, pause, and scrub through the last 40 minutes.</p></div>
+        <div class="card"><div class="icon">🌐</div><h3>Your language, offline</h3><p>Choose from 58 languages. Download once, then it works without internet.</p></div>
+        <div class="card"><div class="icon">🔔</div><h3>Gentle alerts</h3><p>Get severe-weather warnings and a daily morning briefing — only if you want them.</p></div>
+        <div class="card"><div class="icon">🔒</div><h3>Private by design</h3><p>Your spoken briefing is created on your phone. No account, no tracking. <a href="/privacy.html">Learn more</a></p></div>
       </div>
     </section>
 
     <section id="screenshots">
-      <h2>Screenshots</h2>
-      <p class="sub">Phone • 7-inch tablet • 10-inch tablet — all included in the Play listing. Tap to view full size.</p>
+      <h2>See it on any screen</h2>
+      <p class="sub">Phone and tablet — beautifully tuned for each size. Tap any image to view full size.</p>
       <div class="tabs" role="tablist" aria-label="Screenshot categories">
-        <button class="tab active" data-target="phone" role="tab" aria-selected="true">Phone (1080×1920)</button>
-        <button class="tab" data-target="seven" role="tab">7″ tablet (1200×1920)</button>
-        <button class="tab" data-target="ten" role="tab">10″ tablet (1600×2560)</button>
+        <button class="tab active" data-target="phone" role="tab" aria-selected="true">Phone</button>
+        <button class="tab" data-target="seven" role="tab">7″ tablet</button>
+        <button class="tab" data-target="ten" role="tab">10″ tablet</button>
       </div>
-
       <div id="shots-phone" class="shot-grid">
-        <figure class="shot"><a href="/screenshots/phone/phone-1.png" target="_blank"><img src="/screenshots/phone/phone-1.png" alt="Phone screenshot 1 — Home with current, hourly and 5-day forecast" loading="lazy" width="540" height="960"/></a><figcaption>Home • Current + 48h + 5-day</figcaption></figure>
-        <figure class="shot"><a href="/screenshots/phone/phone-2.png" target="_blank"><img src="/screenshots/phone/phone-2.png" alt="Phone screenshot 2 — Live radar with RainViewer + NWS tiles" loading="lazy" width="540" height="960"/></a><figcaption>Radar • RainViewer + NWS</figcaption></figure>
-        <figure class="shot"><a href="/screenshots/phone/phone-3.png" target="_blank"><img src="/screenshots/phone/phone-3.png" alt="Phone screenshot 3 — AI report with neural TTS" loading="lazy" width="540" height="960"/></a><figcaption>Report • Gemma 4 + neural TTS</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/phone/phone-1.png" target="_blank"><img src="/screenshots/phone/phone-1.png" alt="Phone — Home forecast" loading="lazy" width="540" height="960"/></a><figcaption>Home — today, hourly & 5-day</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/phone/phone-2.png" target="_blank"><img src="/screenshots/phone/phone-2.png" alt="Phone — Live radar" loading="lazy" width="540" height="960"/></a><figcaption>Radar — animated rain</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/phone/phone-3.png" target="_blank"><img src="/screenshots/phone/phone-3.png" alt="Phone — Spoken report" loading="lazy" width="540" height="960"/></a><figcaption>Report — tap to listen</figcaption></figure>
       </div>
       <div id="shots-seven" class="shot-grid" style="display:none">
-        <figure class="shot"><a href="/screenshots/7inch/7inch-1.png" target="_blank"><img src="/screenshots/7inch/7inch-1.png" alt="7-inch tablet screenshot 1 — Home" loading="lazy" width="600" height="960"/></a><figcaption>7″ Home</figcaption></figure>
-        <figure class="shot"><a href="/screenshots/7inch/7inch-2.png" target="_blank"><img src="/screenshots/7inch/7inch-2.png" alt="7-inch tablet screenshot 2 — Radar" loading="lazy" width="600" height="960"/></a><figcaption>7″ Radar</figcaption></figure>
-        <figure class="shot"><a href="/screenshots/7inch/7inch-3.png" target="_blank"><img src="/screenshots/7inch/7inch-3.png" alt="7-inch tablet screenshot 3 — Report" loading="lazy" width="600" height="960"/></a><figcaption>7″ AI Report</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/7inch/7inch-1.png" target="_blank"><img src="/screenshots/7inch/7inch-1.png" alt="7-inch tablet — Home" loading="lazy" width="600" height="960"/></a><figcaption>7″ — Home</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/7inch/7inch-2.png" target="_blank"><img src="/screenshots/7inch/7inch-2.png" alt="7-inch tablet — Radar" loading="lazy" width="600" height="960"/></a><figcaption>7″ — Radar</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/7inch/7inch-3.png" target="_blank"><img src="/screenshots/7inch/7inch-3.png" alt="7-inch tablet — Report" loading="lazy" width="600" height="960"/></a><figcaption>7″ — Report</figcaption></figure>
       </div>
       <div id="shots-ten" class="shot-grid" style="display:none">
-        <figure class="shot"><a href="/screenshots/10inch/10inch-1.png" target="_blank"><img src="/screenshots/10inch/10inch-1.png" alt="10-inch tablet screenshot 1 — Home" loading="lazy" width="640" height="1024"/></a><figcaption>10″ Home</figcaption></figure>
-        <figure class="shot"><a href="/screenshots/10inch/10inch-2.png" target="_blank"><img src="/screenshots/10inch/10inch-2.png" alt="10-inch tablet screenshot 2 — Radar" loading="lazy" width="640" height="1024"/></a><figcaption>10″ Radar</figcaption></figure>
-        <figure class="shot"><a href="/screenshots/10inch/10inch-3.png" target="_blank"><img src="/screenshots/10inch/10inch-3.png" alt="10-inch tablet screenshot 3 — Report" loading="lazy" width="640" height="1024"/></a><figcaption>10″ AI Report</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/10inch/10inch-1.png" target="_blank"><img src="/screenshots/10inch/10inch-1.png" alt="10-inch tablet — Home" loading="lazy" width="640" height="1024"/></a><figcaption>10″ — Home</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/10inch/10inch-2.png" target="_blank"><img src="/screenshots/10inch/10inch-2.png" alt="10-inch tablet — Radar" loading="lazy" width="640" height="1024"/></a><figcaption>10″ — Radar</figcaption></figure>
+        <figure class="shot"><a href="/screenshots/10inch/10inch-3.png" target="_blank"><img src="/screenshots/10inch/10inch-3.png" alt="10-inch tablet — Report" loading="lazy" width="640" height="1024"/></a><figcaption>10″ — Report</figcaption></figure>
       </div>
-      <p style="margin-top:10px;font-size:12px;color:#5b6b82">Assets also committed at <code>fastlane/metadata/android/en-US/images/</code> for Play Console upload: <code>phoneScreenshots/</code> • <code>sevenInchScreenshots/</code> • <code>tenInchScreenshots/</code> • <code>featureGraphic.png</code></p>
     </section>
 
     <section id="video">
-      <h2>Promo video</h2>
-      <p class="sub">26.8-second overview with real human voice — also hosted as unlisted YouTube for the Play listing. Ends on GitHub.</p>
+      <h2>Watch the promo</h2>
+      <p class="sub">A quick look at how AuraCast fits into your morning.</p>
       <div class="video-card">
         <div class="video-wrap">
           <video controls poster="/assets/promo-poster.png" preload="metadata" playsinline>
@@ -169,28 +163,36 @@
           </video>
         </div>
         <div class="video-meta">
-          <div>
-            <strong>AuraCast Weather — Promo (26.8s • 1920×1080 • H.264 + AAC)</strong><br/>
-            <span style="color:#5b6b82;font-size:13px">Human voice (Microsoft Zira, loudnorm -16 LUFS) • 5 slides with xfade • Icons + feature graphic + screenshots • Ending: <code>github.com/chartmann1590/auracast-weather</code> — Full cut on YouTube (unlisted for Play) • <a href="https://youtu.be/33B6BICsm7c" target="_blank" rel="noopener">youtu.be/33B6BICsm7c</a></span>
-          </div>
-          <a class="play-badge" href="/assets/promo.mp4" download>⬇ MP4</a>
+          <div><strong>AuraCast Weather — Promo</strong><br><span style="color:#5b6b82;font-size:13px">Also on YouTube: <a href="https://youtu.be/33B6BICsm7c" target="_blank" rel="noopener">youtu.be/33B6BICsm7c</a></span></div>
+          <a class="play-badge" href="/assets/promo.mp4" download>⬇ Download</a>
         </div>
       </div>
-      <p style="font-size:12px;color:#5b6b82;margin-top:8px">Poster: <code>/assets/promo-poster.png</code> (1920×1080) • Video: <code>/assets/promo.mp4</code> + <code>.webm</code> (human voice, 26.8s) • Fastlane copy at <code>fastlane/metadata/android/en-US/images/promo.mp4</code> • End card GitHub pill verified</p>
+    </section>
+
+    <section id="faq">
+      <h2>Frequently asked questions</h2>
+      <p class="sub">Have a question? Start here.</p>
+      <div class="faq">
+        <div class="qa"><h3>Do I need to create an account?</h3><p>No. AuraCast works right away with no sign-in, no email, and no subscription required. Add your location once and you're done.</p></div>
+        <div class="qa"><h3>How is my spoken forecast created?</h3><p>Your forecast numbers are turned into natural speech on your phone using an on-device model. The audio never leaves your device — only the forecast and radar images are fetched from the internet.</p></div>
+        <div class="qa"><h3>Can I change the voice?</h3><p>Yes. Open Settings → Voice to preview and pick your favorite. The app uses your system's natural voices, and you can download additional voices for offline use.</p></div>
+        <div class="qa"><h3>What languages are supported?</h3><p>58 languages. Choose your language during setup or in Settings. The translation pack downloads once and then works offline.</p></div>
+        <div class="qa"><h3>Does the radar work everywhere?</h3><p>Radar uses RainViewer and NWS tiles on a free map. Coverage is global for forecasts, with detailed radar where RainViewer/NWS have data. You can always search any city manually.</p></div>
+        <div class="qa"><h3>Why does it ask for location?</h3><p>To show your local weather and radar. You can deny the permission and type a city instead — the app works either way.</p></div>
+        <div class="qa"><h3>Are there ads? What is AuraCast Plus?</h3><p>The free version shows a small banner and occasional gentle interstitial. AuraCast Plus (a Google Play subscription) removes all ads. Manage it in Play → Payments & subscriptions.</p></div>
+        <div class="qa"><h3>Is my data private?</h3><p>Yes. No name, email, or contacts are collected. Only anonymous crash and performance help us fix bugs. Ads use the standard Google Advertising ID and respect your consent. See the full <a href="/privacy.html">Privacy Policy</a>.</p></div>
+        <div class="qa"><h3>What phones are supported?</h3><p>Android 8.0 (API 26) and newer, including tablets. Works in light and dark mode.</p></div>
+        <div class="qa"><h3>Where can I get help or report a problem?</h3><p>Email <a href="mailto:support@auracast.app">support@auracast.app</a> or open an issue on <a href="https://github.com/chartmann1590/auracast-weather" target="_blank" rel="noopener">GitHub</a>. We read every message.</p></div>
+      </div>
     </section>
 
     <section id="download">
       <div class="cta-band">
         <div>
           <h3 style="margin:0 0 6px;font-size:20px">Get AuraCast Weather</h3>
-          <p style="margin:0;opacity:0.85">Native Android • Min SDK 26 • Adaptive icon • “AuraCast Weather” on the launcher • Free with ads, Plus removes them.</p>
+          <p style="margin:0;opacity:0.85">Free on Android. Private, gentle, and ready in seconds.</p>
         </div>
-        <a class="play-badge" href="#" style="background:white;color:#0B1E3D">▶ <span><small style="color:#5b6b82">GET IT ON</small> Google Play</span></a>
-      </div>
-      <div class="grid3">
-        <div class="card"><h3>App icon</h3><p>Adaptive icon (<code>mipmap-anydpi-v26/ic_launcher.xml</code>) + legacy PNGs for every density: mdpi → xxxhdpi. Mask-tested: circle, squircle, rounded square.</p></div>
-        <div class="card"><h3>App name on phone</h3><p><code>app_name</code> = “AuraCast Weather” • <code>android:label="@string/app_name"</code> in <code>AndroidManifest.xml</code>. Launcher label verified.</p></div>
-        <div class="card"><h3>Store assets committed</h3><p>Feature graphic, all screenshots, and promo video are in <code>fastlane/</code> <em>and</em> on this site — ready for Play Console.</p></div>
+        <a class="play-badge" href="https://play.google.com/store/apps/details?id=com.auracast.weather" target="_blank" rel="noopener" style="background:white;color:#0B1E3D">▶ <span><small style="color:#5b6b82">GET IT ON</small> Google Play</span></a>
       </div>
     </section>
   </main>
@@ -198,10 +200,9 @@
   <footer>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <div>© 2026 AuraCast Weather · Built with Material 3, Meteocons (MIT), Material Symbols (Apache 2.0) · <a href="/privacy.html">Privacy Policy</a></div>
-        <div>Contact: <a href="mailto:support@auracast.app">support@auracast.app</a> · <a href="https://github.com/chartmann1590/auracast-weather">GitHub</a></div>
+        <div>© 2026 AuraCast Weather · <a href="/privacy.html">Privacy Policy</a> · <a href="https://github.com/chartmann1590/auracast-weather" target="_blank" rel="noopener">GitHub</a></div>
+        <div><a href="mailto:support@auracast.app">support@auracast.app</a> · <a href="https://play.google.com/store/apps/details?id=com.auracast.weather" target="_blank" rel="noopener">Google Play</a></div>
       </div>
-      <div style="margin-top:8px;font-size:12px;opacity:.8">Open-Meteo + NWS • RainViewer • LiteRT-LM Gemma 4 • ML Kit • Firebase • AdMob • Play Billing 9.1</div>
     </div>
   </footer>
 

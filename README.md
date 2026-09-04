@@ -6,7 +6,7 @@ AuraCast Weather is a native Android weather app that generates a spoken weather
 
 🌐 **Website:** https://auracast-weather.web.app
 🔒 **Privacy Policy:** https://auracast-weather.web.app/privacy.html
-📱 **Google Play:** coming soon
+📱 **Google Play:** [Get AuraCast on Google Play](https://play.google.com/store/apps/details?id=com.auracast.weather)
 
 ![Feature graphic](website/public/assets/feature-graphic.png)
 

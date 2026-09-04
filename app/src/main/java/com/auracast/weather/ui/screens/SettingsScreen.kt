@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.auracast.weather.data.translate.AppLanguage
 import com.auracast.weather.data.translate.LanguageDownloadState
 import com.auracast.weather.data.translate.TranslationManager
 import com.auracast.weather.data.tts.VoiceOption
@@ -62,7 +66,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             Switch(checked = state.useMetric, onCheckedChange = { viewModel.setMetric(it) })
         }
 
-        // Appearance (Phase 11)
+        // Appearance
         Text(rememberTranslated("Appearance"), style = MaterialTheme.typography.titleSmall)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             listOf("System", "Light", "Dark").forEach { mode ->
@@ -70,9 +74,9 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             }
         }
 
-        // Language (Phase 7 — free on-device ML Kit, downloadable packs, changeable anytime)
+        // Language
         Text(rememberTranslated("Language"), style = MaterialTheme.typography.titleSmall)
-        Text(rememberTranslated("Current: ${state.languageDisplay} — ${state.translationStatus}"))
+        Text("${rememberTranslated("Current:")} ${state.languageDisplay} — ${rememberTranslated(state.translationStatus)}")
         Text(
             rememberTranslated("Every piece of text in the app translates on-device to your chosen language via free ML Kit packs (~30 MB each). Works offline after first download."),
             style = MaterialTheme.typography.bodySmall,
@@ -94,6 +98,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             LanguagePickerDialog(
                 currentCode = state.languageCode,
                 states = state.languageDownloadStates,
+                searchQuery = state.languageSearchQuery,
+                onSearchChange = { viewModel.onLanguageSearchChange(it) },
                 onSelect = { viewModel.selectLanguage(it) },
                 onRetryWifi = { viewModel.retryLanguageDownload(it, allowCellular = true) },
                 onRetry = { viewModel.retryLanguageDownload(it) },
@@ -102,7 +108,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             )
         }
 
-        // Voice (Phase 6) — pick and preview the on-device TTS voice used for AI reports
+        // Voice (TTS voice used for AI reports)
         Text(rememberTranslated("AI Report Voice"), style = MaterialTheme.typography.titleSmall)
         when {
             state.voicesLoading -> CircularProgressIndicator(modifier = Modifier.padding(8.dp))
@@ -111,8 +117,6 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                 style = MaterialTheme.typography.bodySmall,
             )
             else -> {
-                // Distinct voices can still land on the same quality/network tier — number
-                // them so two rows never render with an identical label.
                 val seen = mutableMapOf<String, Int>()
                 val labels = state.voices.associate { v ->
                     val base = voiceDisplayName(v)
@@ -135,25 +139,25 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             }
         }
 
-        // Notifications (Phase 8)
+        // Notifications
         Text(rememberTranslated("Notifications"), style = MaterialTheme.typography.titleSmall)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text(rememberTranslated("Severe weather alerts"))
             Switch(checked = state.severeAlertsEnabled, onCheckedChange = { viewModel.setSevereAlerts(it) })
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Text(rememberTranslated("Daily briefing at ${state.briefingTime}"))
+            Text("${rememberTranslated("Daily briefing at")} ${state.briefingTime}")
             Switch(checked = state.dailyBriefingEnabled, onCheckedChange = { viewModel.setDailyBriefing(it) })
         }
 
-        // AI quality toggle (Phase 5 — E2B vs E4B)
+        // AI quality toggle
         Text(rememberTranslated("AI Report quality"), style = MaterialTheme.typography.titleSmall)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text(rememberTranslated("Higher quality (E4B, needs 6GB RAM)"))
             Switch(checked = state.preferE4B, onCheckedChange = { viewModel.setPreferE4B(it) })
         }
 
-        // Subscription (Phase 10)
+        // Subscription
         Text(rememberTranslated("Subscription"), style = MaterialTheme.typography.titleSmall)
         Text(rememberTranslated(if (state.isAdFree) "AuraCast Plus — ad-free ✓" else "Free — ads shown"))
         Button(onClick = { viewModel.onBillingAction() }) {
@@ -169,64 +173,105 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 private fun LanguagePickerDialog(
     currentCode: String,
     states: Map<String, LanguageDownloadState>,
+    searchQuery: String,
+    onSearchChange: (String) -> Unit,
     onSelect: (String) -> Unit,
     onRetryWifi: (String) -> Unit,
     onRetry: (String) -> Unit,
     onDelete: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val languages = TranslationManager.searchLanguages(searchQuery)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(rememberTranslated("Choose language")) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(rememberTranslated("All languages use free on-device ML Kit packs (~30 MB). One download, then fully offline."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                TranslationManager.LAUNCH_LANGUAGES.forEach { (code, label) ->
-                    val isSelected = code == currentCode
-                    val st = states[code]
-                    val statusText = when (st) {
-                        is LanguageDownloadState.Downloading -> rememberTranslated("Downloading…")
-                        is LanguageDownloadState.Ready -> rememberTranslated("✓ Offline ready")
-                        is LanguageDownloadState.RequiresWifi -> rememberTranslated("Needs Wi-Fi")
-                        is LanguageDownloadState.Failed -> rememberTranslated("Failed — tap retry")
-                        is LanguageDownloadState.NotDownloaded -> rememberTranslated("Not downloaded")
-                        else -> if (code == "en") rememberTranslated("Ready") else rememberTranslated("Tap to download")
-                    }
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .background(
-                                if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                RoundedCornerShape(12.dp)
-                            )
-                            .clickable { onSelect(code) }
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Icon(
-                            if (isSelected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
-                            contentDescription = null,
-                            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Column(Modifier.weight(1f)) {
-                            Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.SemiBold else null)
-                            Text(statusText, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .height(420.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    rememberTranslated("All languages use free on-device ML Kit packs (~30 MB). One download, then fully offline."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Search input
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = onSearchChange,
+                    placeholder = { Text(rememberTranslated("Search 59 languages…")) },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                )
+
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    languages.forEach { lang ->
+                        val code = lang.code
+                        val isSelected = code == currentCode
+                        val st = states[code]
+                        val statusText = when (st) {
+                            is LanguageDownloadState.Downloading -> rememberTranslated("Downloading…")
+                            is LanguageDownloadState.Ready -> rememberTranslated("✓ Offline ready")
+                            is LanguageDownloadState.RequiresWifi -> rememberTranslated("Needs Wi-Fi")
+                            is LanguageDownloadState.Failed -> rememberTranslated("Failed — tap retry")
+                            is LanguageDownloadState.NotDownloaded -> rememberTranslated("Not downloaded")
+                            else -> if (code == "en") rememberTranslated("Ready") else rememberTranslated("Tap to download")
                         }
-                        when (st) {
-                            is LanguageDownloadState.Downloading -> CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                            is LanguageDownloadState.Ready -> if (code != "en") {
-                                IconButton(onClick = { onDelete(code) }) { Icon(Icons.Filled.Delete, contentDescription = rememberTranslated("Delete pack")) }
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .clickable { onSelect(code) }
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                if (isSelected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
+                                contentDescription = null,
+                                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    "${lang.nativeName} (${lang.displayName})",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.SemiBold else null
+                                )
+                                Text(statusText, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            is LanguageDownloadState.RequiresWifi -> TextButton(onClick = { onRetryWifi(code) }) { Text(rememberTranslated("Use cellular"), style = MaterialTheme.typography.labelSmall) }
-                            is LanguageDownloadState.Failed, is LanguageDownloadState.NotDownloaded -> TextButton(onClick = { onRetry(code) }) { Text(rememberTranslated("Download"), style = MaterialTheme.typography.labelSmall) }
-                            else -> {}
+                            when (st) {
+                                is LanguageDownloadState.Downloading -> CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                                is LanguageDownloadState.Ready -> if (code != "en") {
+                                    IconButton(onClick = { onDelete(code) }) { Icon(Icons.Filled.Delete, contentDescription = rememberTranslated("Delete pack")) }
+                                }
+                                is LanguageDownloadState.RequiresWifi -> TextButton(onClick = { onRetryWifi(code) }) { Text(rememberTranslated("Use cellular"), style = MaterialTheme.typography.labelSmall) }
+                                is LanguageDownloadState.Failed, is LanguageDownloadState.NotDownloaded -> TextButton(onClick = { onRetry(code) }) { Text(rememberTranslated("Download"), style = MaterialTheme.typography.labelSmall) }
+                                else -> {}
+                            }
                         }
                     }
                 }
+
                 // Free-tier reassurance footer
-                Box(Modifier.fillMaxWidth().padding(top = 6.dp).background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp)).padding(10.dp)) {
-                    Text(rememberTranslated("ML Kit translation is free, on-device, and needs no API key. Delete any pack in this list to reclaim ~30 MB."), style = MaterialTheme.typography.labelSmall)
+                Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp)).padding(8.dp)) {
+                    Text(
+                        rememberTranslated("ML Kit translation is free, on-device, and needs no API key. Delete any pack in this list to reclaim ~30 MB."),
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
             }
         },
@@ -277,8 +322,6 @@ private fun VoiceRow(
     }
 }
 
-// Engine voice names are cryptic IDs (e.g. "en-us-x-iol-network"); show something a
-// non-technical user can actually compare at a glance instead.
 private fun voiceDisplayName(voice: VoiceOption): String {
     val quality = qualityLabel(voice.quality)
     val kind = if (voice.offline) "Offline" else "Online"

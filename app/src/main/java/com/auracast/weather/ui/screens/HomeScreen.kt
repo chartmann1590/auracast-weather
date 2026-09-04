@@ -184,13 +184,13 @@ fun HomeScreen(
                             )
                             Text(text = rememberTranslated(uiState.conditionText), style = MaterialTheme.typography.titleMedium, color = Color.White.copy(alpha = 0.95f))
                             Text(
-                                text = rememberTranslated("H ${uiState.highTemp}°  L ${uiState.lowTemp}°"),
+                                text = "${rememberTranslated("High")} ${uiState.highTemp}°  •  ${rememberTranslated("Low")} ${uiState.lowTemp}°",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White.copy(alpha = 0.85f),
                             )
                             if (uiState.showCachedBanner) {
                                 Text(
-                                    text = rememberTranslated("Showing cached data from ${uiState.cachedAgeMinutes}m ago"),
+                                    text = "${rememberTranslated("Cached data")} • ${uiState.cachedAgeMinutes}m ${rememberTranslated("ago")}",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Color.White.copy(alpha = 0.7f),
                                     modifier = Modifier.padding(top = 8.dp)

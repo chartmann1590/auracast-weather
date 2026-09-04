@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.auracast.weather.data.llm.GemmaDownloadState
 import com.auracast.weather.data.llm.GemmaModelDownloader
 import com.auracast.weather.data.onboarding.OnboardingDataStore
+import com.auracast.weather.data.translate.AppLanguage
 import com.auracast.weather.data.translate.LanguageDownloadState
+import com.auracast.weather.data.translate.TranslationManager
 import com.auracast.weather.data.translate.TranslationPreferencesDataStore
 import com.auracast.weather.data.translate.TranslationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,8 +23,9 @@ data class OnboardingUiState(
     val downloadState: GemmaDownloadState = GemmaDownloadState.Idle,
     val selectedLanguage: String = "en",
     val onboardingComplete: Boolean = false,
-    val languageDownloadState: LanguageDownloadState = LanguageDownloadState.Idle,
+    val languageDownloadState: LanguageDownloadState = LanguageDownloadState.Ready,
     val languageDownloadStates: Map<String, LanguageDownloadState> = emptyMap(),
+    val languageSearchQuery: String = "",
 )
 
 @HiltViewModel
@@ -40,35 +43,37 @@ class OnboardingViewModel @Inject constructor(
 
     init {
         // If the model is already present from a previous run, reflect that immediately
-        // rather than making the user tap Download again.
         if (downloader.isModelDownloaded()) {
             _uiState.value = _uiState.value.copy(downloadState = GemmaDownloadState.Complete(downloader.modelFile()))
         }
-        // Re-entering onboarding after it was already completed (e.g. process death mid-navigation)
-        // should skip straight through rather than re-running the whole flow.
+        // Re-entering onboarding after it was already completed
         viewModelScope.launch {
             if (onboardingDataStore.isCompleteFlow.first()) {
                 _uiState.value = _uiState.value.copy(onboardingComplete = true)
             }
         }
-        // Keep selected language in sync with persisted prefs (survives process death / app restart).
+        // Keep selected language in sync with persisted prefs
         viewModelScope.launch {
             translationPrefs.languageCodeFlow.collect { code ->
                 _uiState.value = _uiState.value.copy(selectedLanguage = code)
             }
         }
-        // Mirror repository download states so LanguagePage can show per-language spinner/check/warning.
+        // Mirror repository download states
         viewModelScope.launch {
             translationRepository.downloadStates.collect { map ->
                 val selected = _uiState.value.selectedLanguage
                 _uiState.value = _uiState.value.copy(
                     languageDownloadStates = map,
-                    languageDownloadState = map[selected] ?: LanguageDownloadState.Idle
+                    languageDownloadState = map[selected] ?: if (selected == "en") LanguageDownloadState.Ready else LanguageDownloadState.Idle
                 )
             }
         }
-        // Prime the download-state map for all launch languages
+        // Prime the download-state map for all languages
         viewModelScope.launch { translationRepository.refreshAllDownloadStates() }
+    }
+
+    fun onLanguageSearchChange(query: String) {
+        _uiState.value = _uiState.value.copy(languageSearchQuery = query)
     }
 
     fun startGemmaDownload(allowCellular: Boolean = false) {
@@ -88,12 +93,11 @@ class OnboardingViewModel @Inject constructor(
 
     fun onLanguageSelected(languageCode: String) {
         viewModelScope.launch {
-            translationRepository.setLanguage(languageCode)
-            // Kick off ML Kit pack download — wifiOnly=true by default to respect data plans.
-            // If it hits RequiresWifi, the UI shows a "Use cellular anyway" button that calls retryWithCellular().
             _uiState.value = _uiState.value.copy(selectedLanguage = languageCode)
+            translationRepository.setLanguage(languageCode)
+            // Kick off free on-device ML Kit pack download immediately
             if (languageCode != "en") {
-                translationRepository.ensureModelDownloaded(languageCode, wifiOnly = true)
+                translationRepository.ensureModelDownloaded(languageCode, wifiOnly = false)
             }
         }
     }
@@ -106,8 +110,6 @@ class OnboardingViewModel @Inject constructor(
 
     fun completeOnboarding() {
         viewModelScope.launch {
-            // Persist selected language before marking onboarding complete so the app can
-            // immediately start translating every visible string on first Home render.
             val code = _uiState.value.selectedLanguage
             if (code != translationPrefs.languageCodeFlow.first()) {
                 translationRepository.setLanguage(code)

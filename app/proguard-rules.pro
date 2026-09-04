@@ -14,3 +14,15 @@
 -dontnote kotlinx.serialization.AnnotationsKt
 
 # Firebase / Play Billing consumer rules are bundled; no manual keeps needed beyond smoke test
+
+# Google ML Kit Translate
+-keep class com.google.mlkit.** { *; }
+-dontwarn com.google.mlkit.**
+
+# LiteRT LM
+-keep class com.google.ai.edge.litertlm.** { *; }
+-dontwarn com.google.ai.edge.litertlm.**
+
+# osmdroid
+-keep class org.osmdroid.** { *; }
+-dontwarn org.osmdroid.**

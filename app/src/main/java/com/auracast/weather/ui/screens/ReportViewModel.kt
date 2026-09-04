@@ -3,6 +3,7 @@ package com.auracast.weather.ui.screens
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.auracast.weather.data.llm.AiReportEngineSelector
+import com.auracast.weather.data.translate.TranslationRepository
 import com.auracast.weather.data.tts.TtsRepository
 import com.auracast.weather.data.weather.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +30,7 @@ class ReportViewModel @Inject constructor(
     private val engineSelector: AiReportEngineSelector,
     private val tts: TtsRepository,
     private val weatherRepository: WeatherRepository,
+    private val translationRepository: TranslationRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReportUiState())
@@ -85,11 +87,12 @@ class ReportViewModel @Inject constructor(
                 if (s.script.isNotEmpty()) {
                     val offline = tts.isOfflineVoiceAvailable()
                     _uiState.value = s.copy(showOfflineNudge = !offline, isPlaying = true, playbackPosition = 0f)
+                    val targetLang = translationRepository.currentLanguage()
+                    val textToSpeak = translationRepository.translate(s.script)
                     tts.speak(
-                        text = s.script,
+                        text = textToSpeak,
+                        languageCode = targetLang,
                         onProgress = { pos -> _uiState.value = _uiState.value.copy(playbackPosition = pos) },
-                        // Bug fix: playback previously never returned the button to "play" —
-                        // isPlaying was only ever flipped back on a manual pause tap.
                         onComplete = { _uiState.value = _uiState.value.copy(isPlaying = false, playbackPosition = 1f) },
                     )
                 }
