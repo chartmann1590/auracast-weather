@@ -18,6 +18,8 @@ jobs:
           java-version: '21'
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - name: Verify no hardcoded real AdMob IDs in repo (secrets must not be committed)
         run: |
           echo "Checking that no production AdMob IDs are hardcoded in tracked files..."
@@ -32,13 +34,16 @@ jobs:
           fi
           echo "No non-test AdMob IDs in tracked files — OK."
           # Also ensure admob.* properties are not in any committed file other than local.properties (gitignored)
-          LEAKED_PROPS=$(git ls-files | xargs grep -l "admob\.appId\|admob\.bannerId\|admob\.interstitialId" 2>/dev/null | grep -v "^local.properties$" || true)
+          # Property names may appear in docs, the .example file and build.gradle.kts; only a real (non-test) ID assigned to one is a leak.
+          LEAKED_PROPS=$(git grep -nE "admob\.(appId|bannerId|interstitialId)[[:space:]]*=[[:space:]]*ca-app-pub-[0-9]" -- ':!local.properties' 2>/dev/null | grep -v "$ALLOWED_TEST_ID" || true)
           if [ -n "$LEAKED_PROPS" ]; then
             echo "::error::admob.* entry found in a committed file. Those must only be in local.properties (gitignored)."
             echo "$LEAKED_PROPS"
             exit 1
           fi
           echo "Secrets file check passed."
+      - name: Make gradlew executable
+        run: chmod +x gradlew
       - name: Build debug (TEST ads) + lint + unit tests
         run: ./gradlew assembleDebug lint testDebugUnitTest --stacktrace
       - name: Build release (REAL ads when secrets present, else test fallback)
