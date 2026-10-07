@@ -18,6 +18,8 @@ jobs:
           java-version: '21'
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - name: Verify no hardcoded real AdMob IDs in repo (secrets must not be committed)
         run: |
           echo "Checking that no production AdMob IDs are hardcoded in tracked files..."
