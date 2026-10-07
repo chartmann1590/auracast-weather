@@ -49,6 +49,8 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
 
       - name: Install Ruby + Fastlane
         uses: ruby/setup-ruby@v1
