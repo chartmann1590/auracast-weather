@@ -1,0 +1,15 @@
+Dein Wetter, erzählt — komplett auf deinem Gerät.
+
+AuraCast Wetter verwandelt deine tägliche Vorhersage in einen lebendigen Sprachbericht, direkt auf deinem Smartphone generiert mit Gemma-KI und natürlicher Sprachausgabe. Kein Konto nötig, keine Cloud-Anfragen für deinen Bericht.
+
+• Aktuelle Bedingungen, 48-Stunden- und 5-Tage-Vorhersage mit animierten Meteocons-Symbolen.
+• KI-Wetter-Podcast — Gemma läuft lokal auf dem Gerät via LiteRT-LM mit natürlicher Sprachausgabe.
+• Animiertes Niederschlagsradar — RainViewer-Echtzeitkarten mit interaktiver Wiedergabe.
+• Offline-Übersetzung in 59 Sprachen über Google ML Kit — einmal laden, dauerhaft offline nutzen.
+• Unwetterwarnungen und tägliche Briefing-Benachrichtigungen.
+• Material 3 Design (Hell/Dunkel), praktische Homescreen-Widgets, ohne Registrierung.
+
+Datenschutz an erster Stelle:
+Deine Berichte verlassen niemals dein Smartphone. Nativ entwickelt mit Kotlin und Jetpack Compose.
+
+Support: support@auracast.app • Website: https://auracast-weather.web.app

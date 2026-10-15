@@ -48,11 +48,21 @@ class ReportViewModel @Inject constructor(
             val engine = engineSelector.select()
             _uiState.value = _uiState.value.copy(engineName = engine.name)
             try {
+                val fullBuilder = StringBuilder()
                 engine.generateReport(prompt).collect { chunk ->
+                    fullBuilder.append(chunk)
                     _uiState.value = _uiState.value.copy(
-                        script = _uiState.value.script + chunk,
+                        script = fullBuilder.toString(),
                         tokens = _uiState.value.tokens + 1
                     )
+                }
+                val rawReport = fullBuilder.toString()
+                if (rawReport.isNotEmpty()) {
+                    val targetLang = translationRepository.currentLanguage()
+                    if (targetLang != "en") {
+                        val translated = translationRepository.translate(rawReport)
+                        _uiState.value = _uiState.value.copy(script = translated)
+                    }
                 }
             } finally {
                 _uiState.value = _uiState.value.copy(isGenerating = false)

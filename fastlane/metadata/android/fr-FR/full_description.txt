@@ -1,0 +1,15 @@
+Votre météo, racontée — entièrement sur votre appareil.
+
+AuraCast Météo transforme vos prévisions quotidiennes en un briefing vocal naturel, généré directement sur votre téléphone avec l'IA Gemma et une voix neuronale réaliste. Sans compte requis et sans transfert cloud pour générer le rapport.
+
+• Prévisions actuelles, heure par heure (48h) et sur 5 jours avec de superbes icônes Meteocons animées.
+• Podcast météo IA — Modèle Gemma exécuté sur l'appareil via LiteRT-LM avec synthèse vocale neuronale fluide.
+• Radar de précipitations animé — Cartes RainViewer interactives avec lecture et défilement fluide.
+• Traduction hors ligne en 59 langues via Google ML Kit — téléchargez une fois, profitez-en partout hors ligne.
+• Alertes météo et notifications de briefing quotidien.
+• Design moderne Material 3 (thèmes clair/sombre), widgets pour l'écran d'accueil, sans compte.
+
+Confidentialité garantie :
+Vos données météo et briefings restent strictement sur votre appareil. Développé nativement en Kotlin et Jetpack Compose.
+
+Support : support@auracast.app • Site web : https://auracast-weather.web.app

@@ -50,6 +50,20 @@ platform :android do
     )
   end
 
+  lane :production_draft do
+    gradle(task: "clean bundleRelease")
+    supply(
+      track: "production",
+      release_status: "draft",
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      json_key: "fastlane/play-service-account.json",
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+  end
+
   lane :metadata_only do
     # Upload only listing metadata/images/video without binary — useful for first listing setup
     supply(

@@ -1,0 +1,15 @@
+Seu clima, narrado — totalmente no seu celular.
+
+O AuraCast Clima transforma a sua previsão do tempo em um briefing falado natural, gerado direto no seu smartphone com IA Gemma e voz neural realista. Sem necessidade de conta e sem envio para a nuvem.
+
+• Previsão atual, hora a hora (48h) e 5 dias com ícones animados Meteocons.
+• Podcast meteorológico por IA — Gemma roda no dispositivo via LiteRT-LM com síntese de voz neural de alta qualidade.
+• Radar de chuva animado — Mapas RainViewer em tempo real com reprodução e linha do tempo interativa.
+• Tradução offline para 59 idiomas via Google ML Kit — baixe uma vez e use sem gastar internet.
+• Alertas de tempestades e notificações de resumo matinal diário.
+• Visual Material 3 elegante com temas claro e escuro, widgets de tela inicial, sem cadastro.
+
+Privacidade em primeiro lugar:
+Seu relatório nunca sai do seu aparelho. Construído nativamente em Kotlin e Jetpack Compose.
+
+Suporte: support@auracast.app • Site: https://auracast-weather.web.app

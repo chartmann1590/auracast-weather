@@ -8,7 +8,7 @@ on:
         required: true
         default: "internal"
         type: choice
-        options: [internal, closed, production]
+        options: [internal, closed, production, production_draft, metadata_only]
   # Optional: auto on tag push like v0.1.0 — uncomment if you want tag-driven releases
   # push:
   #   tags: ["v*"]
@@ -49,8 +49,6 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools
 
       - name: Install Ruby + Fastlane
         uses: ruby/setup-ruby@v1
