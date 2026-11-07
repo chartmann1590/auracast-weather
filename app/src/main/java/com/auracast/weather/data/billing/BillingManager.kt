@@ -12,6 +12,7 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.hartmannstudios.direct.DirectBilling
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +36,11 @@ class BillingManager @Inject constructor(
     companion object {
         const val PRODUCT_MONTHLY = "plus_monthly"
         const val PRODUCT_YEARLY = "plus_yearly"
+        // Stripe catalog keys (shared Hartmann Studios billing worker, app "auracastweather")
+        const val DIRECT_MONTHLY = "plus_monthly"
+        const val DIRECT_YEARLY = "plus_yearly"
+        const val DIRECT_PRICE_MONTHLY = "$2.99/month"
+        const val DIRECT_PRICE_YEARLY = "$19.99/year"
     }
 
     private val _isAdFree = MutableStateFlow(false)
@@ -46,10 +52,41 @@ class BillingManager @Inject constructor(
         }
     }
 
-    private val client: BillingClient = BillingClient.newBuilder(context)
-        .setListener(purchasesUpdatedListener)
-        .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
-        .build()
+    // Lazy: direct (non-Play) builds never create a Google Play BillingClient.
+    private val client: BillingClient by lazy {
+        BillingClient.newBuilder(context)
+            .setListener(purchasesUpdatedListener)
+            .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
+            .build()
+    }
+
+    // ── Direct (GitHub / charleshartmann.com) build: Stripe Checkout through DirectBilling instead of Google Play ──
+    init {
+        if (DirectBilling.isDirect) {
+            DirectBilling.init(context, "auracastweather")
+            DirectBilling.addListener { updateDirect() }
+            updateDirect()
+        }
+    }
+
+    private fun updateDirect() {
+        _isAdFree.value = DirectBilling.isEntitled(DIRECT_MONTHLY, DIRECT_YEARLY)
+    }
+
+    /** Direct builds: Stripe Checkout for AuraCast Plus. */
+    fun purchaseDirect(activity: Activity, productKey: String) {
+        if (DirectBilling.isDirect) DirectBilling.purchase(activity, productKey)
+    }
+
+    /** Direct builds: look up a Stripe purchase by email (new phone, reinstall). */
+    fun restoreDirect(activity: Activity) {
+        if (DirectBilling.isDirect) DirectBilling.restore(activity)
+    }
+
+    /** Direct builds: Stripe customer portal. */
+    fun manageDirect(activity: Activity) {
+        if (DirectBilling.isDirect) DirectBilling.manageSubscription(activity)
+    }
 
     private var connected = false
 
@@ -69,6 +106,7 @@ class BillingManager @Inject constructor(
     }
 
     suspend fun queryEntitlement(): Boolean {
+        if (DirectBilling.isDirect) { updateDirect(); return _isAdFree.value }
         if (!ensureConnected()) return _isAdFree.value
         val params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()
         val result = suspendCancellableCoroutine { cont ->
@@ -80,6 +118,7 @@ class BillingManager @Inject constructor(
     }
 
     private suspend fun queryProductDetails(productId: String): ProductDetails? {
+        if (DirectBilling.isDirect) return null
         if (!ensureConnected()) return null
         val product = QueryProductDetailsParams.Product.newBuilder()
             .setProductId(productId)
@@ -94,6 +133,7 @@ class BillingManager @Inject constructor(
     }
 
     suspend fun launchPurchaseFlow(activity: Activity, productId: String = PRODUCT_MONTHLY) {
+        if (DirectBilling.isDirect) { purchaseDirect(activity, productId); return }
         val details = queryProductDetails(productId) ?: return
         val offerToken = details.subscriptionOfferDetails?.firstOrNull()?.offerToken ?: return
         val productParams = BillingFlowParams.ProductDetailsParams.newBuilder()

@@ -36,6 +36,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,8 @@ import com.auracast.weather.data.translate.LanguageDownloadState
 import com.auracast.weather.data.translate.TranslationManager
 import com.auracast.weather.data.tts.VoiceOption
 import com.auracast.weather.ui.components.rememberTranslated
+import com.auracast.weather.data.billing.BillingManager
+import com.hartmannstudios.direct.DirectBilling
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
@@ -160,10 +163,28 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         // Subscription
         Text(rememberTranslated("Subscription"), style = MaterialTheme.typography.titleSmall)
         Text(rememberTranslated(if (state.isAdFree) "AuraCast Plus — ad-free ✓" else "Free — ads shown"))
+        if (DirectBilling.isDirect) {
+            // Direct (GitHub / charleshartmann.com) build: Stripe Checkout instead of Google Play.
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            val activity = remember(ctx) { generateSequence(ctx) { (it as? android.content.ContextWrapper)?.baseContext }.firstOrNull { it is android.app.Activity } as? android.app.Activity }
+            if (state.isAdFree) {
+                Button(onClick = { activity?.let { viewModel.manageDirect(it) } }) { Text(rememberTranslated("Manage subscription")) }
+            } else {
+                Button(onClick = { activity?.let { viewModel.buyPlusDirect(it, BillingManager.DIRECT_MONTHLY) } }) {
+                    Text(rememberTranslated("Upgrade to Plus") + " — " + BillingManager.DIRECT_PRICE_MONTHLY)
+                }
+                Button(onClick = { activity?.let { viewModel.buyPlusDirect(it, BillingManager.DIRECT_YEARLY) } }) {
+                    Text(rememberTranslated("Plus yearly") + " — " + BillingManager.DIRECT_PRICE_YEARLY)
+                }
+                Text(rememberTranslated("Prices in USD. Secure checkout by Stripe. Renews until you cancel."), style = MaterialTheme.typography.labelSmall)
+            }
+            Button(onClick = { activity?.let { viewModel.restoreDirect(it) } }) { Text(rememberTranslated("Restore purchases")) }
+        } else {
         Button(onClick = { viewModel.onBillingAction() }) {
             Text(rememberTranslated(if (state.isAdFree) "Manage subscription" else "Upgrade to Plus"))
         }
         Button(onClick = { viewModel.restorePurchases() }) { Text(rememberTranslated("Restore purchases")) }
+        }
 
         Text(rememberTranslated("About — AuraCast Weather v0.1.0  •  Privacy policy at /privacy"), style = MaterialTheme.typography.labelSmall)
     }

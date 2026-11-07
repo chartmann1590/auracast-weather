@@ -9,6 +9,8 @@ import com.auracast.weather.data.translate.TranslationPreferencesDataStore
 import com.auracast.weather.data.translate.TranslationRepository
 import com.auracast.weather.data.tts.TtsRepository
 import com.auracast.weather.data.tts.VoiceOption
+import com.auracast.weather.data.billing.BillingManager
+import com.hartmannstudios.direct.DirectBilling
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,11 +44,17 @@ class SettingsViewModel @Inject constructor(
     private val translationRepository: TranslationRepository,
     private val translationPrefs: TranslationPreferencesDataStore,
     private val ttsRepository: TtsRepository,
+    private val billingManager: BillingManager,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
+        if (DirectBilling.isDirect) {
+            viewModelScope.launch {
+                billingManager.isAdFree.collect { adFree -> _uiState.value = _uiState.value.copy(isAdFree = adFree) }
+            }
+        }
         viewModelScope.launch {
             ttsRepository.selectedVoiceNameFlow.collect { name ->
                 _uiState.value = _uiState.value.copy(selectedVoiceName = name)
@@ -132,4 +140,9 @@ class SettingsViewModel @Inject constructor(
     fun setPreferE4B(prefer: Boolean) { _uiState.value = _uiState.value.copy(preferE4B = prefer) }
     fun onBillingAction() { /* Phase 10 */ }
     fun restorePurchases() { /* Phase 10 */ }
+
+    // Direct (GitHub / charleshartmann.com) builds: AuraCast Plus through Stripe Checkout.
+    fun buyPlusDirect(activity: android.app.Activity, productKey: String) = billingManager.purchaseDirect(activity, productKey)
+    fun restoreDirect(activity: android.app.Activity) = billingManager.restoreDirect(activity)
+    fun manageDirect(activity: android.app.Activity) = billingManager.manageDirect(activity)
 }
