@@ -3,10 +3,13 @@ wait 15
 shot 01-launch
 tap (?i)^english$
 wait 2
-taploop (?i)^(continue|next|get started|skip|allow|while using the app|only this time|ok|got it|enable location|not now|later|no thanks|done)$
+taploop (?i)^(continue|next|get started|skip|skip for now|allow|while using the app|only this time|ok|got it|enable location|not now|later|no thanks|done)$
 wait 5
-taploop (?i)^(continue|next|get started|skip|allow|while using the app|only this time|ok|got it|enable location|not now|later|no thanks|done)$
+taploop (?i)^(continue|next|get started|skip|skip for now|allow|while using the app|only this time|ok|got it|enable location|not now|later|no thanks|done)$
+adclose
 wait 8
+taploop (?i)^(continue|next|get started|skip|skip for now|allow|while using the app|only this time|ok|got it|enable location|not now|later|no thanks|done)$
+adclose
 shot 02-home
 swipeup
 shot 03-home-scrolled
@@ -18,6 +21,7 @@ wait 5
 shot 05-report
 tap (?i)^settings$
 wait 4
+adclose
 shot 06-settings
 swipeup
 swipeup
