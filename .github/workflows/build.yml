@@ -1,5 +1,9 @@
 name: Build
-on: [push, pull_request]
+on:
+  push:
+    # The amazon branch has its own workflow (amazon.yml); skip this one there.
+    branches-ignore: [amazon]
+  pull_request:
 jobs:
   build:
     runs-on: ubuntu-latest
