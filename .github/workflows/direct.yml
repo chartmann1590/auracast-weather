@@ -65,6 +65,7 @@ jobs:
       env: {}
       run: |
         set -o pipefail
+        chmod +x gradlew
         ./gradlew assembleRelease -Pstore=direct --stacktrace 2>&1 | tee -a /tmp/dsk-build.log
         cd "$GITHUB_WORKSPACE"
         mkdir -p dsk-apk
