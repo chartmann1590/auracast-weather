@@ -54,6 +54,8 @@ class BillingManager @Inject constructor(
     private var connected = false
 
     private suspend fun ensureConnected(): Boolean {
+        // Amazon Appstore build: no Google Play Billing; always the free (ads) tier.
+        if (com.auracast.weather.BuildConfig.STORE == "amazon") return false
         if (connected) return true
         return suspendCancellableCoroutine { cont ->
             client.startConnection(object : BillingClientStateListener {
@@ -94,6 +96,7 @@ class BillingManager @Inject constructor(
     }
 
     suspend fun launchPurchaseFlow(activity: Activity, productId: String = PRODUCT_MONTHLY) {
+        if (com.auracast.weather.BuildConfig.STORE == "amazon") return // Amazon Appstore build: no Play purchases
         val details = queryProductDetails(productId) ?: return
         val offerToken = details.subscriptionOfferDetails?.firstOrNull()?.offerToken ?: return
         val productParams = BillingFlowParams.ProductDetailsParams.newBuilder()

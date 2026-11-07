@@ -1,0 +1,28 @@
+launch
+wait 15
+shot 01-launch
+tap (?i)^english$
+wait 2
+taploop (?i)^(continue|next|get started|skip|allow|while using the app|only this time|ok|got it|enable location|not now|later|no thanks|done)$
+wait 5
+taploop (?i)^(continue|next|get started|skip|allow|while using the app|only this time|ok|got it|enable location|not now|later|no thanks|done)$
+wait 8
+shot 02-home
+swipeup
+shot 03-home-scrolled
+tap (?i)^radar$
+wait 6
+shot 04-radar
+tap (?i)^report$
+wait 5
+shot 05-report
+tap (?i)^settings$
+wait 4
+shot 06-settings
+swipeup
+swipeup
+swipeup
+shot 07-settings-bottom
+tap (?i)^home$
+wait 3
+shot 08-back-home

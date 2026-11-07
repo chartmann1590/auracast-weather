@@ -157,13 +157,15 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             Switch(checked = state.preferE4B, onCheckedChange = { viewModel.setPreferE4B(it) })
         }
 
-        // Subscription
+        // Subscription (hidden in the Amazon Appstore build: no Play purchases, free + ads)
+        if (!(com.auracast.weather.BuildConfig.STORE == "amazon")) {
         Text(rememberTranslated("Subscription"), style = MaterialTheme.typography.titleSmall)
         Text(rememberTranslated(if (state.isAdFree) "AuraCast Plus — ad-free ✓" else "Free — ads shown"))
         Button(onClick = { viewModel.onBillingAction() }) {
             Text(rememberTranslated(if (state.isAdFree) "Manage subscription" else "Upgrade to Plus"))
         }
         Button(onClick = { viewModel.restorePurchases() }) { Text(rememberTranslated("Restore purchases")) }
+        }
 
         Text(rememberTranslated("About — AuraCast Weather v0.1.0  •  Privacy policy at /privacy"), style = MaterialTheme.typography.labelSmall)
     }
