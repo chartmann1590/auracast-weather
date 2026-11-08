@@ -10,6 +10,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.auracast.weather.data.billing.BillingManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,6 +28,7 @@ import javax.inject.Singleton
 @Singleton
 class AdManager @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val billingManager: BillingManager,
 ) {
     private var initialized = false
     private var interstitialAd: InterstitialAd? = null
@@ -43,6 +45,8 @@ class AdManager @Inject constructor(
     }
 
     private fun loadInterstitial() {
+        // AuraCast Plus (ad-free) users never get an interstitial, so don't even request one.
+        if (billingManager.isAdFree.value) return
         InterstitialAd.load(
             context,
             BuildConfig.ADMOB_INTERSTITIAL_ID,
@@ -59,6 +63,7 @@ class AdManager @Inject constructor(
     }
 
     fun shouldShowInterstitial(): Boolean {
+        if (billingManager.isAdFree.value) return false
         if (interstitialShownThisSession) return false
         if (System.currentTimeMillis() - lastInterstitialMillis < 3 * 60 * 1000L) return false
         return interstitialAd != null
